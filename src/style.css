@@ -10,7 +10,6 @@
 
 * {
   box-sizing: border-box;
-  position: relative;
 }
 
 body {
@@ -18,6 +17,7 @@ body {
   padding: 0;
   background-color: var(--color-bg);
   font-family: "Noto Sans", sans-serif;
+  position: relative;
 }
 
 h3 {
