@@ -2,6 +2,7 @@
 import Navbar from '../../components/Navbar.vue'
 import Search from '../../components/Search.vue'
 import Posts from '../../components/Posts.vue'
+import BackToTop from '../../components/BackToTop.vue'
 </script>
 
 <template>
@@ -9,6 +10,6 @@ import Posts from '../../components/Posts.vue'
     <Navbar />
     <Search />
     <Posts />
-
+    <BackToTop />
   </div>
 </template>

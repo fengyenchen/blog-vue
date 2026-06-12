@@ -2,6 +2,7 @@ export type PostStatus = 'draft' | 'published'
 
 export type Post = {
   id: string
+  author: string
   title: string
   content: string
   excerpt: string | null
