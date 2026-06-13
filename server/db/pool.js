@@ -9,5 +9,5 @@ if (!connectionString) {
 }
 
 export const pool = new Pool({
-    connectionString,
+    connectionString: connectionString,
 })

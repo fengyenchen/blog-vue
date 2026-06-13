@@ -1,9 +1,9 @@
-import type { Post } from '../types/post'
+import type { Post } from '../types/post.ts'
 import { ref } from 'vue'
 
 export const visiblePostIds = ref<string[]>([])
 
-const fetchPosts = async () => {
+export const fetchPosts = async () => {
     const response = await fetch('/api/posts')
 
     if (!response.ok) {
@@ -11,11 +11,6 @@ const fetchPosts = async () => {
     }
 
     return (await response.json()) as Post[]
-}
-
-export const getPosts = async () => {
-    const posts = await fetchPosts()
-    return posts
 }
 
 export const getPostById = async (id: string) => {

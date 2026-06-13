@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
-import type { Post } from '../types/post'
-import { getPosts, visiblePostIds } from '../services/posts'
+import type { Post } from '../types/post.ts'
+import { fetchPosts, visiblePostIds } from '../services/posts'
 
 const allPosts = ref<Post[]>([])
 
@@ -10,7 +10,7 @@ const items = computed(() =>
 )
 
 const load = async () => {
-  allPosts.value = await getPosts()
+  allPosts.value = await fetchPosts()
 }
 
 onMounted(load)

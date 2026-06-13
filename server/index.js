@@ -4,7 +4,7 @@ import cors from 'cors'
 import { postsRouter } from './routes/posts.js'
 
 const app = express()
-const port = Number.parseInt(process.env.PORT ?? '3000', 10)
+const port = Number(process.env.PORT || 3000)
 
 app.use(cors())
 app.use(express.json())

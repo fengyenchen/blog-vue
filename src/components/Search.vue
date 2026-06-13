@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { getPostByTitle, visiblePostIds } from '../services/posts'
+import { getPostByTitle, visiblePostIds } from '../services/posts.ts'
 
 const query = ref('')
 
