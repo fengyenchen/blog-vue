@@ -6,7 +6,7 @@
     <a href="/"><div class="logo px-8 py-4 border-r border-primary font-bold">BLOG-VUE</div></a>
     <ul class="nav-links flex items-center">
       <a href="https://github.com/fengyenchen" target="_blank" class="px-8 py-4 border-l border-primary">Github</a>
-      <button class="bg-primary text-white px-8 py-4 border-l border-primary">Login</button>
+      <RouterLink to="/login" class="bg-primary text-white px-8 py-4 border-l border-primary">Login</RouterLink>
     </ul>
   </nav>
 </template>
