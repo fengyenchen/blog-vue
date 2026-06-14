@@ -4,6 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import type { Post } from '../../types/post.ts'
 import { getPostById } from '../../services/posts'
 import { marked } from 'marked'
+import BackToTop from '../../components/BackToTop.vue'
+import Back from '../../components/Back.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -20,8 +22,6 @@ const renderedContent = computed(() => {
 
   return marked.parse(post.value.content)
 })
-
-const back = () => router.back()
 
 const load = async () => {
   try {
@@ -62,9 +62,7 @@ const goHome = () => router.push({ name: 'home' })
 
 <template>
   <section class="post-view max-w-3xl mx-auto p-6">
-    <div class="back-button mb-4">
-      <button @click="back" class="text-primary cursor-pointer"><</button>
-    </div>
+    <Back />
 
     <div v-if="loading" class="text-center py-12">載入中…</div>
 
@@ -79,5 +77,7 @@ const goHome = () => router.push({ name: 'home' })
       <div class="text-sm text-gray-500 mb-4">作者：{{ post.author }} · {{ formatDate(post.created_at) }}</div>
       <div v-html="renderedContent" />
     </article>
+
+    <BackToTop />
   </section>
 </template>

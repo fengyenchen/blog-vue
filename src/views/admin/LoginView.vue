@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loginService } from '../../services/auth'
+import Back from '../../components/Back.vue'
 
 const router = useRouter()
 
@@ -25,8 +26,9 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="login-view max-w-md mx-auto mt-16 p-8 bg-white rounded-lg shadow-md">
-    <h1 class="text-2xl font-bold text-center mt-8">Login</h1>
+  <section class="login-view max-w-md mx-auto mt-16 p-8 bg-white rounded-lg shadow-md">
+    <Back />
+    <h1 class="text-2xl font-bold text-center mt-8">Editor Login</h1>
     <form @submit.prevent="handleSubmit" class="w-full mt-8">
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Username</label>
@@ -59,5 +61,5 @@ const handleSubmit = async () => {
     <div class="admin-link text-center mt-4">
       <RouterLink to="/admin/login" class="text-sm text-gray-600 transition underline hover:text-gray-800">Admin Login</RouterLink>
     </div>
-  </div>
+  </section>
 </template>

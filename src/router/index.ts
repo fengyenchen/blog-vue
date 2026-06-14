@@ -26,19 +26,19 @@ const router = createRouter({
       component: LoginView,
     },
     {
-        path: '/admin/login',
-        name: 'admin-login',
-        component: AdminLoginView,
+      path: '/admin/login',
+      name: 'admin-login',
+      component: AdminLoginView,
     },
     {
-        path: '/edit',
-        name: 'edit',
-        component: EditorView,
+      path: '/edit',
+      name: 'edit',
+      component: EditorView,
     },
     {
-        path: '/dashboard',
-        name: 'dashboard',
-        component: Dashboard,
+      path: '/dashboard',
+      name: 'dashboard',
+      component: Dashboard,
     },
   ],
 })
