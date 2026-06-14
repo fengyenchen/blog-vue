@@ -5,7 +5,7 @@ import { loginService } from '../../services/auth'
 
 const router = useRouter()
 
-const username = ref('')
+const username = ref('admin')
 const password = ref('')
 const isValid = computed(() => username.value.trim() !== '' && password.value.trim() !== '')
 
@@ -25,8 +25,8 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="login-view max-w-md mx-auto mt-16 p-8 bg-white rounded-lg shadow-md">
-    <h1 class="text-2xl font-bold text-center mt-8">Login</h1>
+  <div class="admin-login-view max-w-md mx-auto mt-16 p-8 bg-white rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold text-center mt-8">Admin Login</h1>
     <form @submit.prevent="handleSubmit" class="w-full mt-8">
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Username</label>
