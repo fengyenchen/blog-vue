@@ -7,6 +7,6 @@ const back = () => router.back()
 
 <template>
     <section class="back-button mb-4">
-        <button @click="back" class="text-primary cursor-pointer"><</button>
+        <button @click="back" class="text-primary cursor-pointer">←</button>
     </section>
 </template>
