@@ -20,22 +20,40 @@
 ```text
 blog-vue/
 ├── public/              # 公開靜態資源
+├── server/
+│   ├── db/
+│   │   └── pool.js      # PostgreSQL 連線池
+│   ├── routes/
+│   │   └── posts.js     # 文章 API 路由
+│   ├── types/           # 後端型別或定義
+│   └── index.js         # Express 入口
 ├── src/
+│   ├── assets/          # 前端靜態資源
 │   ├── components/      # 共用元件
+│   │   ├── BackToTop.vue
+│   │   ├── Navbar.vue
+│   │   ├── Posts.vue
+│   │   └── Search.vue
+│   ├── lib/             # 前端工具函式
+│   ├── router/
+│   │   └── index.ts     # Vue Router 設定
 │   ├── services/        # 前端資料操作邏輯
 │   ├── types/           # TypeScript 型別定義
+│   │   └── post.ts
 │   ├── views/
 │   │   ├── admin/       # 後台頁面
+│   │   │   ├── Dashboard.vue
+│   │   │   ├── EditorView.vue
+│   │   │   └── LoginView.vue
 │   │   └── frontend/    # 前台頁面
+│   │       ├── HomeView.vue
+│   │       └── PostView.vue
 │   ├── App.vue          # 根元件
 │   ├── main.ts          # Vue 入口檔
 │   └── style.css        # 全域樣式與 Tailwind 匯入
-├── server/
-│   ├── db/              # PostgreSQL 連線設定
-│   ├── routes/          # API 路由
-│   └── index.js         # Express 入口
 ├── index.html
 ├── package.json         # npm 套件與指令設定
+├── README.md
 ├── tsconfig*.json
 └── vite.config.ts       # Vite 與 Tailwind CSS 設定
 ```
