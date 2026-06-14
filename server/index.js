@@ -3,6 +3,8 @@ import express from 'express'
 import cors from 'cors'
 import { postsRouter } from './routes/posts.js'
 import { authRouter } from './routes/auth.js'
+import { editorRouter } from './routes/editor.js'
+import { adminRouter } from './routes/admin.js'
 
 const app = express()
 const port = Number(process.env.PORT || 3000)
@@ -17,6 +19,10 @@ app.get('/api/health', (_request, response) => {
 app.use('/api/posts', postsRouter)
 
 app.use('/api/auth', authRouter)
+
+app.use('/api/edit', editorRouter)
+
+app.use('/api/admin', adminRouter)
 
 app.use((error, _request, response, _next) => {
     console.error('Error:', error.message)

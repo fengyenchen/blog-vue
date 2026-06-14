@@ -1,0 +1,185 @@
+/* 自訂的 Markdown 樣式，讓文章內容看起來更美觀且易讀 */
+
+/* 1. 標題系列 */
+.markdown-body h1 {
+  font-weight: bold;
+  color: var(--color-primary);
+  font-family: "Noto Serif TC", serif;
+  font-size: 2.5rem;
+  margin: 2.5rem 0 1.5rem 0;
+  padding-bottom: 0.3rem;
+  border-bottom: 3px solid var(--color-underline);
+}
+
+.markdown-body h2 {
+  font-weight: bold;
+  color: var(--color-primary);
+  font-family: "Noto Serif TC", serif;
+  font-size: 2rem;
+  margin: 2rem 0 1.3rem 0;
+  padding-bottom: 0.25rem;
+  border-bottom: 2px solid var(--color-underline);
+}
+
+.markdown-body h3 {
+  font-weight: bold;
+  color: var(--color-primary);
+  font-family: "Noto Serif TC", serif;
+  font-size: 1.85rem;
+  margin: 2rem 0 1.2rem 0;
+  padding-bottom: 0.2rem;
+  border-bottom: 2px solid var(--color-underline);
+}
+
+.markdown-body h4, .markdown-body h5, .markdown-body h6 {
+  font-weight: bold;
+  color: #333;
+  font-size: 1.3rem;
+  margin: 1.8rem 0 1rem 0;
+}
+
+/* 2. 段落與文字 */
+.markdown-body p {
+  margin: 1.5rem 0;
+  line-height: 1.8;
+  color: #222;
+}
+
+/* 3. 列表 (強效修復) */
+.markdown-body ul {
+  list-style-type: disc !important;
+  padding-left: 2em !important;
+  margin: 1rem 0 16px 0 !important;
+}
+
+.markdown-body ol {
+  list-style-type: decimal !important;
+  padding-left: 2em !important;
+  margin: 1rem 0 16px 0 !important;
+}
+
+.markdown-body li {
+  display: list-item !important;
+  color: #222;
+  margin: 0.4rem 0;
+}
+
+/* 4. 表格樣式 */
+.markdown-body table {
+  width: 100%;
+  margin: 1.5rem 0;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.markdown-body th {
+  background-color: #f3f4f6;
+  font-weight: bold;
+  border: 1px solid #e5e7eb;
+  padding: 10px 14px;
+}
+
+.markdown-body td {
+  border: 1px solid #e5e7eb;
+  padding: 10px 14px;
+  color: #374151;
+}
+
+.markdown-body tr:nth-child(even) {
+  background-color: #f9fafb; /* 雙數行反灰交錯 */
+}
+
+/* 5. 程式碼區塊 (質感補強版) */
+.markdown-body pre {
+  background-color: #1e1e24 !important; /* 微帶紫調的質感深黑 */
+  border: 1px solid #2d2d34;
+  padding: 1.25rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 1.8rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 增加淡淡的立體陰影 */
+}
+
+/* 確保多行程式碼內部的 code 文字維持清爽灰白，且背景不衝突 */
+.markdown-body pre code {
+  background-color: transparent !important;
+  color: #e2e8f0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-size: inherit !important;
+}
+
+/* 行內程式碼 (特別強化為粉底紅字) */
+.markdown-body :not(pre) > code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background-color: #ffeef0 !important; /* 淡淡的粉紅底色 */
+  color: #d63384 !important;            /* 經典的科技感桃紅字 */
+  padding: 0.2rem 0.45rem !important;
+  border-radius: 4px !important;
+  font-size: 0.85rem !important;
+  font-weight: 500;
+  border: 1px solid #f8d7da !important;
+  margin: 0 0.2rem;
+}
+
+/* 深色程式碼滾動條美化 */
+.markdown-body pre::-webkit-scrollbar {
+  height: 8px;
+}
+.markdown-body pre::-webkit-scrollbar-track {
+  background: #1e1e24;
+  border-radius: 0 0 8px 8px;
+}
+.markdown-body pre::-webkit-scrollbar-thumb {
+  background: #4a4a5a;
+  border-radius: 4px;
+}
+.markdown-body pre::-webkit-scrollbar-thumb:hover {
+  background: #62627a;
+}
+
+/* 6. 引用區塊 */
+.markdown-body blockquote {
+  margin: 1.5rem 0;
+  padding: 0.5rem 1rem;
+  color: #4b5563;
+  background-color: #f9fafb;
+  border-left: 4px solid #cbd5e1;
+  font-style: italic;
+}
+
+/* 7. 水平分割線 */
+.markdown-body hr {
+  height: 0.25em;
+  padding: 0;
+  margin: 24px 0;
+  background-color: #e1e4e8;
+  border: 0;
+}
+
+/* 8. 程式碼語法彩色高亮 */
+.markdown-body .hljs-keyword,
+.markdown-body .hljs-selector-tag { 
+  color: #569cd6; font-weight: bold; 
+} /* const, return, if 變藍色 */
+
+.markdown-body .hljs-string { 
+  color: #ce9178; 
+}    /* 字體字串 'markdown' 變橘粉色 */
+.markdown-body .hljs-title,
+.markdown-body .hljs-section { 
+  color: #dcdcaa; 
+}   /* 函數名稱 computed, parse 變淡黃色 */
+
+.markdown-body .hljs-comment { 
+  color: #6a9955; font-style: italic; 
+} /* 註解 //... 變優雅變綠色 */
+.markdown-body .hljs-number { 
+  color: #b5cea8; 
+}    /* 數字 123 變淡綠色 */
+.markdown-body .hljs-params { 
+  color: #9cdcfe; 
+}    /* 參數變淺藍色 */

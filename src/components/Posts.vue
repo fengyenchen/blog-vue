@@ -3,20 +3,41 @@ import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Post } from '../types/post.ts'
 import { fetchPosts, visiblePostIds } from '../services/posts'
+import { editorFetchPosts } from '../services/editor.ts'
+
+const props = withDefaults(
+  defineProps<{
+    isAuth?: boolean
+  }>(),
+  {
+    isAuth: false
+  }
+)
 
 const allPosts = ref<Post[]>([])
 
-const items = computed(() =>
-  allPosts.value.filter((post) => visiblePostIds.value.includes(post.id)),
-)
+const items = computed(() => {
+  if (props.isAuth) {
+    return allPosts.value
+  }
+  return allPosts.value.filter((post) => visiblePostIds.value.includes(post.id))
+})
 
 const router = useRouter()
 
 const load = async () => {
+  if (props.isAuth) {
+    allPosts.value = await editorFetchPosts()
+    return
+  }
   allPosts.value = await fetchPosts()
 }
 
 const openPost = (id: string) => {
+  if (props.isAuth) {
+    router.push(`/edit/${id}`)
+    return
+  }
   router.push({ name: 'post', params: { id } })
 }
 
@@ -34,11 +55,19 @@ const formatDate = (iso?: string) => {
 
 <template>
   <section class="posts">
-    <ul>
-      <li v-for="item in items" :key="item.id" class="post-item border-b border-primary py-4 px-8 cursor-pointer transition" @click="openPost(item.id)">
-        <h4 class="text-lg font-bold text-primary">{{ item.title }}</h4>
-        <p v-if="item.excerpt" class="text-gray-600">{{ item.excerpt }}</p>
-        <small class="text-gray-400">{{ formatDate(item.created_at) }}</small>
+    <ul class="posts-list">
+      <li v-for="item in items" 
+          :key="item.id" 
+          @click="openPost(item.id)"
+          class="post-item border-b border-gray-200 py-6 px-6 md:px-8 cursor-pointer transition flex flex-col gap-4 md:grid md:grid-cols-[1fr_auto] md:gap-8 items-start md:items-center hover:bg-gray-50/50">
+        <div class="post-info">
+          <h2 class="text-lg font-bold text-primary">{{ item.title }}</h2>
+          <p v-if="item.excerpt" class="text-gray-600">{{ item.excerpt }}</p>
+          <small class="text-gray-400">{{ formatDate(item.created_at) }}</small>
+        </div>
+        <div class="post-action">
+          <slot name="actions" :post="item"></slot>
+        </div>
       </li>
     </ul>
   </section>

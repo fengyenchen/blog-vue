@@ -4,8 +4,22 @@ import { useRoute, useRouter } from 'vue-router'
 import type { Post } from '../../types/post.ts'
 import { getPostById } from '../../services/posts'
 import { marked } from 'marked'
+import { markedHighlight } from 'marked-highlight'
+import hljs from 'highlight.js'
+import '../../assets/style/markdown.css'
 import BackToTop from '../../components/BackToTop.vue'
 import Back from '../../components/Back.vue'
+
+marked.use(
+  markedHighlight({
+    emptyLangClass: 'hljs',
+    langPrefix: 'hljs language-',
+    highlight(code, lang) {
+      const language = hljs.getLanguage(lang) ? lang : 'plaintext'
+      return hljs.highlight(code, { language }).value
+    }
+  })
+)
 
 const route = useRoute()
 const router = useRouter()
@@ -57,7 +71,7 @@ const formatDate = (iso?: string) => {
   }
 }
 
-const goHome = () => router.push({ name: 'home' })
+const back = () => router.back()
 </script>
 
 <template>
@@ -68,14 +82,14 @@ const goHome = () => router.push({ name: 'home' })
 
     <div v-else-if="error" class="text-center text-red-600 py-12">
       <p>{{ error }}</p>
-      <button @click="goHome" class="mt-8 px-3 py-1 bg-primary text-white transition cursor-pointer">回到首頁</button>
+      <button @click="back" class="mt-8 px-3 py-1 bg-primary text-white transition cursor-pointer">回上一頁</button>
     </div>
 
     <article v-else v-if="post" class="prose prose-lg">
       <img v-if="post.cover_image && showImage" :src="post.cover_image" :alt="post.title ?? '文章封面'" @error="showImage = false" class="w-full rounded mb-4" />
-      <h1 class="text-2xl font-bold text-primary">{{ post.title }}</h1>
+      <h2 class="text-2xl font-bold text-primary">{{ post.title }}</h2>
       <div class="text-sm text-gray-500 mb-4">作者：{{ post.author }} · {{ formatDate(post.created_at) }}</div>
-      <div v-html="renderedContent" />
+      <div v-html="renderedContent" class="markdown-body" />
     </article>
 
     <BackToTop />

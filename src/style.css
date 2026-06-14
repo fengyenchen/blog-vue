@@ -19,13 +19,3 @@ body {
   font-family: "Noto Sans", sans-serif;
   position: relative;
 }
-
-h3 {
-  font-size: 1.85rem;
-  font-weight: bold;
-  color: var(--color-primary);
-  margin: 2rem 0 1.8rem 0;
-  padding-bottom: 0.2rem;
-  border-bottom: 2px solid var(--color-underline);
-  font-family: "Noto Serif TC", serif;
-}

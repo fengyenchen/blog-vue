@@ -17,7 +17,7 @@ const handleSubmit = async () => {
     const data = await loginService(username.value, password.value)
 
     if (data.success) {
-      router.push('/edit') 
+      router.push('/admin') 
     }
   } catch (error: any) {
     alert(error.message)

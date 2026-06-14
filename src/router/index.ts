@@ -5,6 +5,7 @@ import PostView from '../views/frontend/PostView.vue'
 import AdminLoginView from '../views/admin/AdminLoginView.vue'
 import EditorView from '../views/admin/EditorView.vue'
 import Dashboard from '../views/admin/Dashboard.vue'
+import EditFormView from '../views/admin/EditFormView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -26,14 +27,25 @@ const router = createRouter({
       component: LoginView,
     },
     {
-      path: '/admin/login',
-      name: 'admin-login',
-      component: AdminLoginView,
-    },
-    {
       path: '/edit',
       name: 'edit',
       component: EditorView,
+    },
+    {
+      path: '/edit/:id',
+      name: 'EditorPostEdit',
+      component: EditFormView,
+      props: true
+    },
+    {
+      path: '/edit/new',
+      name: 'EditorPostCreate',
+      component: EditFormView
+    },
+    {
+      path: '/admin/login',
+      name: 'adminLogin',
+      component: AdminLoginView,
     },
     {
       path: '/dashboard',
