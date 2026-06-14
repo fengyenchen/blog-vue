@@ -9,7 +9,7 @@
 - **快速開發**：使用 Vite 建立開發環境，支援快速啟動與熱更新。
 - **Vue 3 架構**：以 Vue 3 Single File Components 撰寫頁面與元件。
 - **Tailwind CSS**：透過 `@tailwindcss/vite` 整合 Tailwind CSS。
-- **Markdown 編輯**：後台整合 `md-editor-v3`，提供 Markdown 編輯與預覽。
+- **Markdown 編輯**：後台整合 `md-editor-v3`，提供 Markdown 編輯與預覽；文章正文會以 Markdown 原文儲存在資料庫。
 - **前後台頁面分離**：`src/views/frontend` 放前台頁面，`src/views/admin` 放後台頁面。
 - **Node.js API**：`server/` 提供 Express + PostgreSQL 後端，前端透過 `/api` 取得文章資料。
 
@@ -77,14 +77,20 @@ npm run dev
 - `GET /api/posts`：取得已發布文章（例如：`http://localhost:3000/api/posts`）
 - `GET /api/posts/:id`：取得單篇文章（例如：`http://localhost:3000/api/posts/550e8400-e29b-41d4-a716-446655440000`）
 
+### 6. 文章資料格式
 
-### 6. 建置正式版本
+- 後台編輯器輸入的是 Markdown。
+- 資料庫的 `public.posts.content` 欄位儲存 Markdown 原文。
+- 前台文章頁會用 `marked` 將 Markdown 轉成 HTML 後再顯示。
+
+
+### 7. 建置正式版本
 
 ```bash
 npm run build
 ```
 
-### 7. 預覽正式版本
+### 8. 預覽正式版本
 
 ```bash
 npm run preview
