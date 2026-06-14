@@ -25,7 +25,7 @@ blog-vue/
 │   ├── db/
 │   │   └── pool.js      # PostgreSQL 連線池
 │   ├── routes/
-│   │   ├── auth.js      # 身分驗證 API 路由 🆕
+│   │   ├── auth.js      # 身分驗證 API 路由
 │   │   └── posts.js     # 文章 API 路由
 │   ├── types/           # 後端型別或定義
 │   └── index.js         # Express 入口
