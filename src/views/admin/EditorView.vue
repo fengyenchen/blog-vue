@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Posts from '../../components/Posts.vue'
-import { deleteArticle } from '../../services/editor.ts'
+import { deleteArticle } from '../../services/editor'
 import type { Post } from '../../types/post'
 
 const router = useRouter()
@@ -36,7 +36,7 @@ const confirmDelete = async (post: Post) => {
 
 <template>
   <section class="editor-view p-6 max-w-5xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex md:flex-row flex-col md:justify-between items-center mb-6 justify-left space-y-4 md:space-y-0">
       <h1 class="text-2xl font-bold text-primary">文章編輯後台</h1>
       <div class="flex items-center space-x-3">
         <button 
@@ -54,7 +54,7 @@ const confirmDelete = async (post: Post) => {
       </div>
     </div>
 
-    <Posts :key="refreshKey" :isAuth="true">
+    <Posts :key="refreshKey" :isEditor="true">
       <template #actions="{ post }">
         <div class="flex items-center space-x-3">
           <span 

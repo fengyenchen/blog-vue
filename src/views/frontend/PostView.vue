@@ -3,6 +3,7 @@ import { computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { Post } from '../../types/post.ts'
 import { getPostById } from '../../services/posts'
+import { getUsernameByUserId } from '../../services/posts'
 import { marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
 import hljs from 'highlight.js'
@@ -24,7 +25,7 @@ marked.use(
 const route = useRoute()
 const router = useRouter()
 const id = String(route.params.id || '')
-
+const authorName = ref('未知作者')
 const post = ref<Post | null>(null)
 const loading = ref(true)
 const error = ref('')
@@ -52,6 +53,13 @@ const load = async () => {
 
     post.value = p
     showImage.value = true
+
+    if (p.user_id) {
+      const u = await getUsernameByUserId(p.user_id)
+      if (u && u.username) {
+        authorName.value = u.username
+      }
+    }
   } catch (e) {
     console.error(e)
     error.value = '載入文章失敗'
@@ -88,7 +96,7 @@ const back = () => router.back()
     <article v-else v-if="post" class="prose prose-lg">
       <img v-if="post.cover_image && showImage" :src="post.cover_image" :alt="post.title ?? '文章封面'" @error="showImage = false" class="w-full rounded mb-4" />
       <h2 class="text-2xl font-bold text-primary">{{ post.title }}</h2>
-      <div class="text-sm text-gray-500 mb-4">作者：{{ post.author }} · {{ formatDate(post.created_at) }}</div>
+      <div class="text-sm text-gray-500 mb-4">作者：{{ authorName }} · {{ formatDate(post.created_at) }}</div>
       <div v-html="renderedContent" class="markdown-body" />
     </article>
 

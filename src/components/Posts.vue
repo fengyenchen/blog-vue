@@ -1,23 +1,33 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import type { Post } from '../types/post.ts'
+import type { Post } from '../types/post'
 import { fetchPosts, visiblePostIds } from '../services/posts'
-import { editorFetchPosts } from '../services/editor.ts'
+import { editorFetchPosts } from '../services/editor'
 
 const props = withDefaults(
   defineProps<{
-    isAuth?: boolean
+    isEditor?: boolean
   }>(),
   {
-    isAuth: false
+    isEditor: false
   }
 )
 
 const allPosts = ref<Post[]>([])
 
+const load = async () => {
+  if (props.isEditor) {
+    allPosts.value = await editorFetchPosts()
+    return
+  }
+  allPosts.value = await fetchPosts()
+}
+
+onMounted(load)
+
 const items = computed(() => {
-  if (props.isAuth) {
+  if (props.isEditor) {
     return allPosts.value
   }
   return allPosts.value.filter((post) => visiblePostIds.value.includes(post.id))
@@ -25,23 +35,13 @@ const items = computed(() => {
 
 const router = useRouter()
 
-const load = async () => {
-  if (props.isAuth) {
-    allPosts.value = await editorFetchPosts()
-    return
-  }
-  allPosts.value = await fetchPosts()
-}
-
 const openPost = (id: string) => {
-  if (props.isAuth) {
+  if (props.isEditor) {
     router.push(`/edit/${id}`)
     return
   }
   router.push({ name: 'post', params: { id } })
 }
-
-onMounted(load)
 
 const formatDate = (iso?: string) => {
   if (!iso) return ''

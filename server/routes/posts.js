@@ -6,7 +6,7 @@ export const postsRouter = Router()
 postsRouter.get('/', async (_request, response, next) => {
     try {
         const { rows } = await pool.query(
-            `SELECT id, author, title, content, excerpt, cover_image, status, created_at, updated_at
+            `SELECT id, user_id, title, content, excerpt, cover_image, status, created_at, updated_at
        FROM public.posts
        WHERE status = 'published'
        ORDER BY created_at DESC, id DESC`,
@@ -21,7 +21,7 @@ postsRouter.get('/', async (_request, response, next) => {
 postsRouter.get('/:id', async (request, response, next) => {
     try {
         const { rows } = await pool.query(
-            `SELECT id, author, title, content, excerpt, cover_image, status, created_at, updated_at
+            `SELECT id, user_id, title, content, excerpt, cover_image, status, created_at, updated_at
        FROM public.posts
        WHERE id = $1 AND status = 'published'
        LIMIT 1`,

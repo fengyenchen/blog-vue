@@ -27,11 +27,16 @@ blog-vue/
 │   ├── routes/
 │   │   ├── auth.js      # 身分驗證 API 路由
 │   │   └── posts.js     # 文章 API 路由
+│   │   └── editor.js    # 編輯者 API 路由
+│   │   └── admin.js     # 管理員 API 路由
 │   ├── types/           # 後端型別或定義
 │   └── index.js         # Express 入口
 ├── src/
 │   ├── assets/          # 前端靜態資源
+|   |   ├── style /
+│   │   │   ├── markdown.css # 自訂 Markdown 樣式
 │   ├── components/      # 共用元件
+|   |   ├── Back.vue
 │   │   ├── BackToTop.vue
 │   │   ├── Navbar.vue
 │   │   ├── Posts.vue
@@ -42,15 +47,18 @@ blog-vue/
 │   ├── services/        # 前端資料操作邏輯
 │   │   ├── auth.ts      # 登入驗證服務
 │   │   └── posts.ts     # 文章資料服務
+│   │   └── admin.ts     # 管理員服務
+│   │   └── editor.ts    # 編輯者服務
 │   ├── types/           # TypeScript 型別定義
 │   │   ├── auth.ts      # 登入相關型別
 │   │   └── post.ts      # 文章相關型別
 │   ├── views/
 │   │   ├── admin/       # 後台頁面
 │   │   │   ├── AdminLoginView.vue # 管理員登入頁面
-│   │   │   ├── Dashboard.vue
-│   │   │   ├── EditorView.vue
-│   │   │   └── LoginView.vue
+│   │   │   ├── Dashboard.vue # 管理員儀表板頁面
+│   │   │   ├── EditorView.vue # 編輯者管理頁面
+│   │   │   ├── EditFormView.vue # 編輯者編輯頁面
+│   │   │   └── LoginView.vue # 編輯者登入頁面
 │   │   └── frontend/    # 前台頁面
 │   │       ├── HomeView.vue
 │   │       └── PostView.vue
@@ -58,6 +66,8 @@ blog-vue/
 │   ├── main.ts          # Vue 入口檔
 │   └── style.css        # 全域樣式與 Tailwind 匯入
 ├── index.html
+├── .env.exmaple         # 環境變數範例檔
+├── .env                 # 本地環境變數設定檔
 ├── package.json         # npm 套件與指令設定
 ├── README.md
 ├── tsconfig*.json

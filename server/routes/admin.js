@@ -6,7 +6,7 @@ export const adminRouter = Router()
 adminRouter.get('/', async (_request, response, next) => {
     try {
         const { rows } = await pool.query(
-            `SELECT id, author, title, content, excerpt, cover_image, status, created_at, updated_at
+            `SELECT id, user_id, title, content, excerpt, cover_image, status, created_at, updated_at
        FROM public.posts
        ORDER BY created_at DESC, id DESC`,
         )

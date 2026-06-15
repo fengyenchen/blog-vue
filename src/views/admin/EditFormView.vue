@@ -5,7 +5,7 @@ import { marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
 import hljs from 'highlight.js'
 import '../../assets/style/markdown.css'
-import { getEditorPostById, createArticle, updateArticle } from '../../services/editor.ts'
+import { getEditorPostById, createArticle, updateArticle } from '../../services/editor'
 
 marked.use(
   markedHighlight({
@@ -25,7 +25,6 @@ const isLoading = ref(false)
 // 取得網址上的 id。如果是 /edit/new，postId 就會是 undefined
 const postId = computed(() => route.params.id as string | undefined)
 
-// 表單綁定的响应式資料
 const currentArticle = ref({
   title: '',
   content: '',
@@ -87,17 +86,14 @@ const saveArticle = async () => {
         await updateArticle(postId.value, title, content, status, finalCoverImage, finalExcerpt)
     }
     
-    // 💡 不管是新增還是更新、草稿還是公開，一律只跳「完成」
     alert('完成')
     
-    // 成功後導回列表主頁
     router.push('/edit')
     } catch (error) {
     alert(error instanceof Error ? error.message : '儲存失敗')
     }
 }
 
-// 取消編輯 -> 導回列表主頁
 const cancelEdit = () => {
   if (confirm('確定要取消嗎？未儲存的變更將會遺失。')) {
     router.push('/edit')
