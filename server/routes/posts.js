@@ -18,7 +18,7 @@ postsRouter.get('/', async (_request, response, next) => {
     }
 })
 
-postsRouter.get('/:id', async (request, response, next) => {
+postsRouter.get('/post/:id', async (request, response, next) => {
     try {
         const { rows } = await pool.query(
             `SELECT id, user_id, title, content, excerpt, cover_image, status, created_at, updated_at

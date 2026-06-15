@@ -1,7 +1,7 @@
 import type { Post } from '../types/post.ts'
 
 export const editorFetchPosts = async () => {
-    const response = await fetch('/api/edit')
+    const response = await fetch('/api/editor')
 
     if (!response.ok) {
         throw new Error(`Failed to load posts: ${response.status}`)
@@ -11,7 +11,7 @@ export const editorFetchPosts = async () => {
 }
 
 export const getEditorPostById = async (id: string) => {
-    const response = await fetch(`/api/edit/${id}`)
+    const response = await fetch(`/api/editor/edit/${id}`)
 
     if (response.status === 404) {
         return null
@@ -41,7 +41,7 @@ export const createArticle = async (
     // 如果使用者有自己填寫摘要，就用填寫的；沒有的話才由系統自動生成
     const finalExcerpt = excerpt?.trim() ? excerpt.trim() : generateExcerpt(content)
 
-    const response = await fetch('/api/edit', {
+    const response = await fetch('/api/editor/edit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -71,7 +71,7 @@ export const updateArticle = async (
     // 同樣的邏輯：優先使用使用者自訂的摘要
     const finalExcerpt = excerpt?.trim() ? excerpt.trim() : generateExcerpt(content)
 
-    const response = await fetch(`/api/edit/${id}`, {
+    const response = await fetch(`/api/editor/edit/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -90,7 +90,7 @@ export const updateArticle = async (
 }
 
 export const deleteArticle = async (id: string) => {
-    const response = await fetch(`/api/edit/${id}`, {
+    const response = await fetch(`/api/editor/edit/${id}`, {
         method: 'DELETE'
     })
 

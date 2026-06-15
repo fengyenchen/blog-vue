@@ -37,7 +37,7 @@ const router = useRouter()
 
 const openPost = (id: string) => {
   if (props.isEditor) {
-    router.push(`/edit/${id}`)
+    router.push(`/editor/edit/${id}`)
     return
   }
   router.push({ name: 'post', params: { id } })

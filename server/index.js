@@ -21,7 +21,7 @@ app.use('/api/posts', postsRouter)
 
 app.use('/api/auth', authRouter)
 
-app.use('/api/edit', editorRouter)
+app.use('/api/editor', editorRouter)
 
 app.use('/api/admin', adminRouter)
 

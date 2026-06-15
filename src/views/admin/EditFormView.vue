@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue' // 💡 1. 引入 watch，拿掉 onMounted
 import { useRoute, useRouter } from 'vue-router'
-import { marked } from 'marked'
+import { Marked } from 'marked' // 💡 2. 改引入大寫的 Marked 類別，防範全域疊加污染
 import { markedHighlight } from 'marked-highlight'
 import hljs from 'highlight.js'
 import '../../assets/style/markdown.css'
 import { getEditorPostById, createArticle, updateArticle } from '../../services/editor'
 
-marked.use(
+// 建立一個專屬編輯器、獨立且唯一的 marked 實體
+const localMarked = new Marked(
   markedHighlight({
     emptyLangClass: 'hljs',
     langPrefix: 'hljs language-',
@@ -22,7 +23,7 @@ const route = useRoute()
 const router = useRouter()
 const isLoading = ref(false)
 
-// 取得網址上的 id。如果是 /edit/new，postId 就會是 undefined
+// 取得網址上的 id。如果是 /editor/edit/new，postId 就會是 undefined
 const postId = computed(() => route.params.id as string | undefined)
 
 const currentArticle = ref({
@@ -33,37 +34,55 @@ const currentArticle = ref({
   status: 'draft' as 'draft' | 'published'
 })
 
-// 初始化：判斷是「編輯」還是「新增」
-onMounted(async () => {
-  // 如果網址有 id 且不是全新的路徑，代表是編輯狀態
-  if (postId.value && route.name !== 'EditorPostCreate') {
-    isLoading.value = true
-    try {
-      const post = await getEditorPostById(postId.value)
-      if (post) {
-        currentArticle.value = {
-          title: post.title,
-          content: post.content,
-          excerpt: post.excerpt,
-          cover_image: post.cover_image,
-          status: post.status
-        }
-      } else {
-        alert('找不到該文章')
-        router.push('/edit')
+// 定義一個乾淨的文章載入函式
+const loadArticleData = async (id: string) => {
+  isLoading.value = true
+  try {
+    const post = await getEditorPostById(id)
+    if (post) {
+      currentArticle.value = {
+        title: post.title,
+        content: post.content,
+        excerpt: post.excerpt,
+        cover_image: post.cover_image,
+        status: post.status
       }
-    } catch (error) {
-      alert('載入文章詳細內容失敗')
-      router.push('/edit')
-    } finally {
-      isLoading.value = false
+    } else {
+      alert('找不到該文章')
+      router.push('/editor')
     }
+  } catch (error) {
+    alert('載入文章詳細內容失敗')
+    router.push('/editor')
+  } finally {
+    isLoading.value = false
   }
-})
+}
 
-// 即時將 Markdown 轉換為 HTML
+// 使用監聽器，當 postId 變化時（包括第一次進入頁面和重新整理），都會觸發載入文章資料的函式
+watch(
+  () => route.params.id,
+  (newId) => {
+    // 只有當新 ID 存在，且不是 'new' (不是點選新增文章) 時，才去後端撈取舊資料
+    if (newId && newId !== 'new') {
+      loadArticleData(String(newId))
+    } else {
+      // 如果是 /editor/edit/new 或是退回列表頁，就把資料徹底重設，不留殘留物
+      currentArticle.value = {
+        title: '',
+        content: '',
+        excerpt: '',
+        cover_image: '',
+        status: 'draft'
+      }
+    }
+  },
+  { immediate: true } // 確保頁面第一次開起來（包括重新整理）也會被執行
+)
+
+// 即時預覽區改用剛剛建立的獨立 localMarked 引擎
 const parsedMarkdown = computed(() => {
-  return marked.parse(currentArticle.value.content || '')
+  return localMarked.parse(currentArticle.value.content || '')
 })
 
 // 儲存文章（新增或更新）
@@ -87,16 +106,15 @@ const saveArticle = async () => {
     }
     
     alert('完成')
-    
-    router.push('/edit')
-    } catch (error) {
+    router.push('/editor')
+  } catch (error) {
     alert(error instanceof Error ? error.message : '儲存失敗')
-    }
+  }
 }
 
 const cancelEdit = () => {
   if (confirm('確定要取消嗎？未儲存的變更將會遺失。')) {
-    router.push('/edit')
+    router.push('/editor')
   }
 }
 </script>

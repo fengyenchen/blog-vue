@@ -105,17 +105,32 @@ npm run dev
 
 這個指令會同時啟動 Vite 前端與 Express API。
 
+好的，完全依照你原本的簡潔格式，將所有新增的路由與模組全部補齊進去。你可以直接複製這段去替換 README：
+
 ### 5. API 預設路由
 
 #### 身分驗證模組
 
-- `POST /api/auth/`：使用者登入驗證。需在 body 帶入 `{ username, password }`。驗證成功回傳 `200` 與使用者資訊，失敗回傳 `401`。
+* `POST /api/auth`：使用者登入驗證。需在 body 帶入 `{ username, password }`。驗證成功回傳 `200` 與使用者資訊，失敗回傳 `401`。
 
 #### 文章模組
 
-- `GET /api/health`：檢查 API 是否啟動（例如：`http://localhost:3000/api/health`）
-- `GET /api/posts`：取得已發布文章（例如：`http://localhost:3000/api/posts`）
-- `GET /api/posts/:id`：取得單篇文章（例如：`http://localhost:3000/api/posts/550e8400-e29b-41d4-a716-446655440000`）
+* `GET /api/health`：檢查 API 是否啟動（例如：`http://localhost:3000/api/health`）
+* `GET /api/posts`：取得已發布文章（例如：`http://localhost:3000/api/posts`）
+* `GET /api/posts/post/:id`：取得單篇文章（例如：`http://localhost:3000/api/posts/post/550e8400-e29b-41d4-a716-446655440000`）
+
+#### 後台編輯者管理模組
+
+* `GET /api/editor`：取得後台全文章列表（包含草稿與已發布，依時間降冪排序）
+* `GET /api/editor/edit/:id`：取得單一文章詳細內容（供後台編輯器載入）
+* `POST /api/editor/edit`：儲存新增的文章。需在 body 帶入 `{ title, content, status, cover_image, excerpt }`
+* `PUT /api/editor/edit/:id`：儲存更新的文章。需在 body 帶入 `{ title, content, status, cover_image, excerpt }`，並自動更新 `updated_at`
+* `DELETE /api/editor/edit/:id`：刪除指定文章（從資料庫永久抹除）
+
+#### 使用者資料模組
+
+* `GET /api/users`：取得所有使用者列表（僅含 `id` 與 `username`，不含密碼雜湊）
+* `GET /api/users/:id`：取得特定使用者資訊（用於前端關聯查詢作者名稱）
 
 
 ### 6. 身分驗證機制

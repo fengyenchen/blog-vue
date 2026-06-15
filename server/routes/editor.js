@@ -17,7 +17,7 @@ editorRouter.get('/', async (_request, response, next) => {
     }
 })
 
-editorRouter.get('/:id', async (request, response, next) => {
+editorRouter.get('/edit/:id', async (request, response, next) => {
     try {
         const { id } = request.params
         const { rows } = await pool.query(
@@ -38,7 +38,7 @@ editorRouter.get('/:id', async (request, response, next) => {
 })
 
 // 儲存更新的文章
-editorRouter.put('/:id', async (request, response, next) => {
+editorRouter.put('/edit/:id', async (request, response, next) => {
     try {
         const { id } = request.params
         // 從前端傳來的 JSON payload 裡解構出這 5 個欄位
@@ -66,7 +66,7 @@ editorRouter.put('/:id', async (request, response, next) => {
 })
 
 // 儲存新增的文章
-editorRouter.post('/', async (request, response, next) => {
+editorRouter.post('/edit', async (request, response, next) => {
     try {
         const { title, content, status, cover_image, excerpt } = request.body
         
@@ -88,7 +88,7 @@ editorRouter.post('/', async (request, response, next) => {
 })
 
 // 刪除文章
-editorRouter.delete('/:id', async (request, response, next) => {
+editorRouter.delete('/edit/:id', async (request, response, next) => {
     try {
         const { id } = request.params
         const { rows } = await pool.query(

@@ -15,7 +15,7 @@ export const fetchPosts = async () => {
 }
 
 export const getPostById = async (id: string) => {
-    const response = await fetch(`/api/posts/${id}`)
+    const response = await fetch(`/api/posts/post/${id}`)
 
     if (response.status === 404) {
         return null

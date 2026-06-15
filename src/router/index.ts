@@ -27,18 +27,18 @@ const router = createRouter({
       component: LoginView,
     },
     {
-      path: '/edit',
-      name: 'edit',
+      path: '/editor',
+      name: 'editor',
       component: EditorView,
     },
     {
-      path: '/edit/:id',
+      path: '/editor/edit/:id',
       name: 'EditorPostEdit',
       component: EditFormView,
       props: true
     },
     {
-      path: '/edit/new',
+      path: '/editor/edit/new',
       name: 'EditorPostCreate',
       component: EditFormView
     },

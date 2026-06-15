@@ -11,11 +11,11 @@ const router = useRouter()
 const refreshKey = ref(0)
 
 const handleCreate = () => {
-  router.push('/edit/new')
+  router.push('/editor/edit/new')
 }
 
 const handleEdit = (post: Post) => {
-  router.push(`/edit/${post.id}`)
+  router.push(`/editor/edit/${post.id}`)
 }
 
 // 刪除文章並二次確認
@@ -36,7 +36,7 @@ const confirmDelete = async (post: Post) => {
 
 <template>
   <section class="editor-view p-6 max-w-5xl mx-auto">
-    <div class="flex md:flex-row flex-col md:justify-between items-center mb-6 justify-left space-y-4 md:space-y-0">
+    <div class="flex md:flex-row flex-col justify-between items-center mb-6 space-y-4 md:space-y-0">
       <h1 class="text-2xl font-bold text-primary">文章編輯後台</h1>
       <div class="flex items-center space-x-3">
         <button 

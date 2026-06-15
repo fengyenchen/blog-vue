@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { Post } from '../../types/post.ts'
 import { getPostById } from '../../services/posts'
 import { getUsernameByUserId } from '../../services/posts'
-import { marked } from 'marked'
+import { Marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
 import hljs from 'highlight.js'
 import '../../assets/style/markdown.css'
 import BackToTop from '../../components/BackToTop.vue'
 import Back from '../../components/Back.vue'
 
-marked.use(
+// 建立一個屬於這個組件的、獨立且唯一的 marked 實體，不會重複疊加插件
+const localMarked = new Marked(
   markedHighlight({
     emptyLangClass: 'hljs',
     langPrefix: 'hljs language-',
@@ -24,28 +25,30 @@ marked.use(
 
 const route = useRoute()
 const router = useRouter()
-const id = String(route.params.id || '')
+
 const authorName = ref('未知作者')
 const post = ref<Post | null>(null)
 const loading = ref(true)
 const error = ref('')
 const showImage = ref(true)
-const renderedContent = computed(() => {
-  if (!post.value) {
-    return ''
-  }
 
-  return marked.parse(post.value.content)
+// 使用剛剛建立的 localMarked
+const renderedContent = computed(() => {
+  if (!post.value) return ''
+  return localMarked.parse(post.value.content)
 })
 
-const load = async () => {
+// 動態接收 id
+const load = async (currentId: string) => {
   try {
-    if (!id) {
+    loading.value = true
+    error.value = ''
+    if (!currentId) {
       error.value = 'Invalid post id'
       return
     }
 
-    const p = await getPostById(id)
+    const p = await getPostById(currentId)
     if (!p) {
       error.value = '文章不存在或已下架'
       return
@@ -68,7 +71,16 @@ const load = async () => {
   }
 }
 
-onMounted(load)
+// 使用監聽器，當 postId 變化時（包括第一次進入頁面和重新整理），都會觸發載入文章資料的函式
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (newId) {
+      load(String(newId))
+    }
+  },
+  { immediate: true }
+)
 
 const formatDate = (iso?: string) => {
   if (!iso) return ''
