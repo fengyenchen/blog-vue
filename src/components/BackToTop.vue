@@ -26,7 +26,7 @@ onUnmounted(() => {
 <template>
     <button 
         v-show="isVisible" 
-        class="back-to-top w-10 h-10 fixed bottom-4 right-4 rounded-full bg-primary text-white transition opacity-75 hover:opacity-100 cursor-pointer" 
+        class="back-to-top w-10 h-10 fixed bottom-4 right-4 rounded-full bg-primary text-white transition hover:bg-primary/90 cursor-pointer" 
         @click="scrollToTop"
         aria-label="回到頂部"
     >

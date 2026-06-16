@@ -1,23 +1,25 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { loginService } from '../../services/auth'
+import { applyForEditorService } from '../../services/auth'
 import Back from '../../components/Back.vue'
 
 const router = useRouter()
 
 const username = ref('')
 const password = ref('')
+const remark = ref('')
 const isValid = computed(() => username.value.trim() !== '' && password.value.trim() !== '')
 
 const handleSubmit = async () => {
   if (!isValid.value) return
 
   try {
-    const data = await loginService('editor', username.value, password.value)
+    const data = await applyForEditorService(username.value, password.value, remark.value)
 
-    if (data.success && (data.user.role === 'editor' || data.user.role === 'admin')) {
-      router.push('/editor') 
+    if (data.success) {
+      alert('申請成功！請等待管理員審核。')
+      router.push('/')
     }
   } catch (error: any) {
     alert(error.message)
@@ -26,9 +28,9 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <section class="login-view max-w-md mx-auto mt-16 p-8 bg-white rounded-lg shadow-md">
+  <section class="apply-for-editor-view max-w-md mx-auto mt-16 p-8 bg-white rounded-lg shadow-md">
     <Back />
-    <h1 class="text-2xl font-bold text-center mt-8">Editor Login</h1>
+    <h1 class="text-2xl font-bold text-center mt-8">Apply for Editor</h1>
     <form @submit.prevent="handleSubmit" class="w-full mt-8">
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Username</label>
@@ -50,17 +52,23 @@ const handleSubmit = async () => {
           v-model="password"
         />
       </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="remark">Remark</label>
+        <input
+          id="remark"
+          type="text"
+          placeholder="Enter your remark (optional)"
+          class="w-full px-3 py-2 border rounded-md focus:outline-none"
+          v-model="remark"
+        />
+      </div>
       <button
         type="submit"
         class="w-full bg-primary/80 text-white py-2 rounded-md my-4 hover:bg-primary focus:outline-none transition cursor-pointer"
         :disabled="!isValid"
       >
-        Login
+        apply
       </button>
     </form>
-    <div class="admin-link text-center mt-4 space-x-4">
-      <RouterLink to="/applyForEditor" class="text-sm text-gray-600 transition underline hover:text-gray-800">Apply for Editor</RouterLink>
-      <RouterLink to="/admin/login" class="text-sm text-gray-600 transition underline hover:text-gray-800">Admin Login</RouterLink>
-    </div>
   </section>
 </template>

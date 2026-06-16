@@ -165,7 +165,7 @@ npm run build
 npm run preview
 ```
 
-### 10. 資料庫結構 (Database Schema)
+### 10. 資料庫結構
 
 本專案使用 PostgreSQL，核心資料表包含 `users`、`posts` 與 `editor_applications`。初始化時請使用 `init.sql` 建立資料表，各資料表核心欄位說明如下：
 

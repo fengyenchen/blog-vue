@@ -6,6 +6,7 @@ import AdminLoginView from '../views/admin/AdminLoginView.vue'
 import EditorView from '../views/admin/EditorView.vue'
 import Dashboard from '../views/admin/Dashboard.vue'
 import EditFormView from '../views/admin/EditFormView.vue'
+import applyForEditorView from '../views/frontend/ApplyForEditorView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -25,6 +26,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView,
+    },
+    {
+      path: '/applyForEditor',
+      name: 'applyForEditor',
+      component: applyForEditorView,
     },
     {
       path: '/editor',
