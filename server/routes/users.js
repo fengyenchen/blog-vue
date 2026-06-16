@@ -6,7 +6,7 @@ export const usersRouter = Router()
 usersRouter.get('/', async (request, response, next) => {
     try {
         const { rows } = await pool.query(
-            `SELECT id, username
+            `SELECT id, username, role
        FROM public.users`,
         )
 
@@ -24,7 +24,7 @@ usersRouter.get('/', async (request, response, next) => {
 usersRouter.get('/:id', async (request, response, next) => {
     try {
         const { rows } = await pool.query(
-            `SELECT id, username
+            `SELECT id, username, role
        FROM public.users
        WHERE id = $1
        LIMIT 1`,

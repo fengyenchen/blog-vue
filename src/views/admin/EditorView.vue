@@ -40,8 +40,13 @@ const confirmDelete = async (post: Post) => {
       <h1 class="text-2xl font-bold text-primary">文章編輯後台</h1>
       <div class="flex items-center space-x-3">
         <button 
+          class="bg-primary text-white border border-primary px-4 py-2 transition cursor-pointer hover:bg-primary/90 rounded"
+        >
+          設定
+        </button>
+        <button 
           @click="handleCreate" 
-          class="bg-primary text-white px-4 py-2 transition cursor-pointer hover:bg-primary/90 rounded"
+          class="bg-primary text-white border border-primary px-4 py-2 transition cursor-pointer hover:bg-primary/90 rounded"
         >
           新增文章
         </button>

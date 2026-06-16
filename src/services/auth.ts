@@ -1,12 +1,12 @@
 import type { LoginSuccessResponse } from '../types/auth'
 
-export const loginService = async (username: string, password: string) => {
+export const loginService = async (role: 'admin' | 'editor' | 'user', username: string, password: string) => {
     const response = await fetch('/api/auth', { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ role, username, password }),
     })
 
     if (!response.ok) {

@@ -14,10 +14,10 @@ const handleSubmit = async () => {
   if (!isValid.value) return
 
   try {
-    const data = await loginService(username.value, password.value)
+    const data = await loginService('admin', username.value, password.value)
 
-    if (data.success) {
-      router.push('/admin') 
+    if (data.success && data.user.role === 'admin') {
+      router.push('/admin/dashboard') 
     }
   } catch (error: any) {
     alert(error.message)

@@ -158,17 +158,17 @@ const cancelEdit = () => {
         />
       </div>
 
-      <div class="flex flex-col md:flex-row flex-1 border border-gray-300 rounded overflow-hidden bg-white shadow-sm min-h-[500px] md:min-h-0">
+      <div class="flex flex-col md:flex-row flex-1 border border-gray-300 rounded overflow-hidden bg-white shadow-sm min-h-125 md:min-h-0">
         
-        <div class="w-full md:w-1/2 border-b md:border-b-0 md:border-r border-gray-300 flex flex-col min-h-[250px] md:min-h-0">
+        <div class="w-full md:w-1/2 border-b md:border-b-0 md:border-r border-gray-300 flex flex-col min-h-62.5 md:min-h-0">
           <textarea
             v-model="currentArticle.content"
             placeholder="請使用 Markdown 語法撰寫內容..."
-            class="w-full flex-1 p-4 resize-none focus:outline-none font-mono text-sm leading-relaxed min-h-[250px] md:min-h-0"
+            class="w-full flex-1 p-4 resize-none focus:outline-none font-mono text-sm leading-relaxed min-h-62.5 md:min-h-0"
           ></textarea>
         </div>
 
-        <div class="w-full md:w-1/2 p-4 overflow-y-auto bg-gray-50 markdown-body min-h-[250px] md:min-h-0">
+        <div class="markdown-body w-full md:w-1/2 p-4 overflow-y-auto bg-gray-50 min-h-62.5 md:min-h-0">
           <img 
             v-if="currentArticle.cover_image" 
             :src="currentArticle.cover_image" 

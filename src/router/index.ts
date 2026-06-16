@@ -48,8 +48,8 @@ const router = createRouter({
       component: AdminLoginView,
     },
     {
-      path: '/dashboard',
-      name: 'dashboard',
+      path: '/admin/dashboard',
+      name: 'adminDashboard',
       component: Dashboard,
     },
   ],

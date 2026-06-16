@@ -19,3 +19,13 @@ body {
   font-family: "Noto Sans", sans-serif;
   position: relative;
 }
+
+::selection {
+    background: var(--color-primary);
+    color: white;
+}
+
+::-moz-selection {
+    background: var(--color-primary);
+    color: white;
+}

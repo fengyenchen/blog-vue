@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import type { Post } from '../types/post'
 import { fetchPosts, visiblePostIds } from '../services/posts'
 import { editorFetchPosts } from '../services/editor'
+import { formatDate } from '../lib/formatDate'
 
 const props = withDefaults(
   defineProps<{
@@ -41,15 +42,6 @@ const openPost = (id: string) => {
     return
   }
   router.push({ name: 'post', params: { id } })
-}
-
-const formatDate = (iso?: string) => {
-  if (!iso) return ''
-  try {
-    return new Date(iso).toLocaleDateString()
-  } catch {
-    return iso
-  }
 }
 </script>
 

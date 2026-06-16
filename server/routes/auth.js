@@ -8,7 +8,7 @@ authRouter.post('/', async (request, response, next) => {
         const { username, password } = request.body
 
         const { rows } = await pool.query(
-            `SELECT id, username, password_hash 
+            `SELECT id, username, password_hash, role 
        FROM public.users 
        WHERE username = $1 
        LIMIT 1`,
@@ -26,6 +26,7 @@ authRouter.post('/', async (request, response, next) => {
             response.json({
                 success: true,
                 user: {
+                    role: user.role,
                     id: user.id,
                     username: user.username,
                 },

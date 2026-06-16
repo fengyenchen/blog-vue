@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { Post } from '../../types/post.ts'
 import { getPostById } from '../../services/posts'
-import { getUsernameByUserId } from '../../services/posts'
+import { getUsernameByUserId } from '../../services/users'
 import '../../assets/style/markdown.css'
 import BackToTop from '../../components/BackToTop.vue'
 import Back from '../../components/Back.vue'
@@ -43,8 +43,8 @@ const load = async (currentId: string) => {
 
     if (p.user_id) {
       const u = await getUsernameByUserId(p.user_id)
-      if (u && u.username) {
-        authorName.value = u.username
+      if (u) {
+        authorName.value = u
       }
     }
   } catch (e) {
