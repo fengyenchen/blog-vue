@@ -26,7 +26,7 @@ export const applyForEditorService = async (username: string, password: string, 
     })
 
     if (!response.ok) {
-        throw new Error('申請失敗')
+        throw new Error('該使用者名稱已被註冊，請換一個！')
     }
 
     return (await response.json()) as LoginSuccessResponse
