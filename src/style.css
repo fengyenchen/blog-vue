@@ -29,3 +29,12 @@ body {
     background: var(--color-primary);
     color: white;
 }
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-underline);
+  border-radius: 4px;
+}
