@@ -1,29 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue' // 💡 1. 引入 watch，拿掉 onMounted
+import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Marked } from 'marked' // 💡 2. 改引入大寫的 Marked 類別，防範全域疊加污染
-import { markedHighlight } from 'marked-highlight'
-import hljs from 'highlight.js'
 import '../../assets/style/markdown.css'
 import { getEditorPostById, createArticle, updateArticle } from '../../services/editor'
-
-// 建立一個專屬編輯器、獨立且唯一的 marked 實體
-const localMarked = new Marked(
-  markedHighlight({
-    emptyLangClass: 'hljs',
-    langPrefix: 'hljs language-',
-    highlight(code, lang) {
-      const language = hljs.getLanguage(lang) ? lang : 'plaintext'
-      return hljs.highlight(code, { language }).value
-    }
-  })
-)
+import { parseMarkdown } from '../../lib/markdown'
 
 const route = useRoute()
 const router = useRouter()
 const isLoading = ref(false)
 
-// 取得網址上的 id。如果是 /editor/edit/new，postId 就會是 undefined
 const postId = computed(() => route.params.id as string | undefined)
 
 const currentArticle = ref({
@@ -34,7 +19,6 @@ const currentArticle = ref({
   status: 'draft' as 'draft' | 'published'
 })
 
-// 定義一個乾淨的文章載入函式
 const loadArticleData = async (id: string) => {
   isLoading.value = true
   try {
@@ -59,15 +43,13 @@ const loadArticleData = async (id: string) => {
   }
 }
 
-// 使用監聽器，當 postId 變化時（包括第一次進入頁面和重新整理），都會觸發載入文章資料的函式
 watch(
   () => route.params.id,
   (newId) => {
-    // 只有當新 ID 存在，且不是 'new' (不是點選新增文章) 時，才去後端撈取舊資料
+    // 只有當不是新增文章時，才去後端撈取舊資料
     if (newId && newId !== 'new') {
       loadArticleData(String(newId))
     } else {
-      // 如果是 /editor/edit/new 或是退回列表頁，就把資料徹底重設，不留殘留物
       currentArticle.value = {
         title: '',
         content: '',
@@ -77,18 +59,16 @@ watch(
       }
     }
   },
-  { immediate: true } // 確保頁面第一次開起來（包括重新整理）也會被執行
+  { immediate: true }
 )
 
-// 即時預覽區改用剛剛建立的獨立 localMarked 引擎
 const parsedMarkdown = computed(() => {
-  return localMarked.parse(currentArticle.value.content || '')
+  return parseMarkdown(currentArticle.value.content || '')
 })
 
-// 儲存文章（新增或更新）
 const saveArticle = async () => {
-  if (!currentArticle.value.title.trim()) {
-    alert('請填寫文章標題！')
+  if (!currentArticle.value.title.trim() || !currentArticle.value.content.trim()) {
+    alert('請填寫文章標題和內容！')
     return
   }
 

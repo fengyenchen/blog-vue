@@ -4,24 +4,10 @@ import { useRoute, useRouter } from 'vue-router'
 import type { Post } from '../../types/post.ts'
 import { getPostById } from '../../services/posts'
 import { getUsernameByUserId } from '../../services/posts'
-import { Marked } from 'marked'
-import { markedHighlight } from 'marked-highlight'
-import hljs from 'highlight.js'
 import '../../assets/style/markdown.css'
 import BackToTop from '../../components/BackToTop.vue'
 import Back from '../../components/Back.vue'
-
-// 建立一個屬於這個組件的、獨立且唯一的 marked 實體，不會重複疊加插件
-const localMarked = new Marked(
-  markedHighlight({
-    emptyLangClass: 'hljs',
-    langPrefix: 'hljs language-',
-    highlight(code, lang) {
-      const language = hljs.getLanguage(lang) ? lang : 'plaintext'
-      return hljs.highlight(code, { language }).value
-    }
-  })
-)
+import { parseMarkdown } from '../../lib/markdown'
 
 const route = useRoute()
 const router = useRouter()
@@ -32,13 +18,11 @@ const loading = ref(true)
 const error = ref('')
 const showImage = ref(true)
 
-// 使用剛剛建立的 localMarked
 const renderedContent = computed(() => {
   if (!post.value) return ''
-  return localMarked.parse(post.value.content)
+  return parseMarkdown(post.value.content)
 })
 
-// 動態接收 id
 const load = async (currentId: string) => {
   try {
     loading.value = true
@@ -71,7 +55,6 @@ const load = async (currentId: string) => {
   }
 }
 
-// 使用監聽器，當 postId 變化時（包括第一次進入頁面和重新整理），都會觸發載入文章資料的函式
 watch(
   () => route.params.id,
   (newId) => {
