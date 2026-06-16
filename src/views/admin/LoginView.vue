@@ -17,7 +17,11 @@ const handleSubmit = async () => {
     const data = await loginService('editor', username.value, password.value)
 
     if (data.success && (data.user.role === 'editor' || data.user.role === 'admin')) {
-      router.push('/editor') 
+      // 使用 data.user.id 作為登入憑證，並存儲角色資訊
+      localStorage.setItem('token', data.user.id)
+      localStorage.setItem('role', data.user.role)
+
+      router.push('/editor')
     }
   } catch (error: any) {
     alert(error.message)

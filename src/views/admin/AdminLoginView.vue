@@ -17,6 +17,9 @@ const handleSubmit = async () => {
     const data = await loginService('admin', username.value, password.value)
 
     if (data.success && data.user.role === 'admin') {
+      localStorage.setItem('token', data.user.id) 
+      localStorage.setItem('role', data.user.role)
+      
       router.push('/admin/dashboard') 
     }
   } catch (error: any) {
