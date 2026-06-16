@@ -116,8 +116,13 @@ npm run dev
 #### 文章模組
 
 * `GET /api/health`：檢查 API 是否啟動（例如：`http://localhost:3000/api/health`）
-* `GET /api/posts`：取得已發布文章（例如：`http://localhost:3000/api/posts`）
-* `GET /api/posts/post/:id`：取得單篇文章（例如：`http://localhost:3000/api/posts/post/550e8400-e29b-41d4-a716-446655440000`）
+* `GET /api/posts`：取得所有已發布的文章列表（狀態為 `published`，依時間降冪排序）
+* `GET /api/posts/post/:id`：取得單篇已發布文章的詳細內容（例如：`http://localhost:3000/api/posts/post/550e8400-e29b-41d4-a716-446655440000`）
+
+#### 使用者管理模組
+
+* `GET /api/users`：取得系統所有使用者列表（包含 ID、名稱與角色）
+* `GET /api/users/:id`：透過 ID 取得指定使用者的名稱與基本資料
 
 #### 後台編輯者管理模組
 
@@ -127,10 +132,12 @@ npm run dev
 * `PUT /api/editor/edit/:id`：儲存更新的文章。需在 body 帶入 `{ title, content, status, cover_image, excerpt }`，並自動更新 `updated_at`
 * `DELETE /api/editor/edit/:id`：刪除指定文章
 
-#### 使用者資料模組
+#### 後台管理員權限模組
 
-* `GET /api/users`：取得所有使用者列表（資料不含密碼雜湊）
-* `GET /api/users/:id`：取得特定使用者資訊
+* `GET /api/admin/editor-applications`：取得所有編輯者資格申請紀錄
+* `GET /api/admin/editor-applications/pending`：僅取得處於「待審核（`pending`）」狀態的編輯者申請
+* `PUT /api/admin/editor-applications/:id/:status`：審核編輯者申請，變更狀態為 `approved` 或 `rejected`
+* `POST /api/admin/users/:userId/:role`：調整指定使用者的權限角色（`user` / `editor` / `admin`）
 
 
 ### 6. 身分驗證機制
@@ -157,3 +164,11 @@ npm run build
 ```bash
 npm run preview
 ```
+
+### 10. 資料庫結構 (Database Schema)
+
+本專案使用 PostgreSQL，核心資料表包含 `users`、`posts` 與 `editor_applications`。初始化時請使用 `init.sql` 建立資料表，各資料表核心欄位說明如下：
+
+- **public.users**：儲存使用者帳號、密碼雜湊值（password_hash）與權限角色（role，包含 user / editor / admin）。
+- **public.posts**：儲存文章標題、Markdown 原文內容（content）、文章摘要、封面圖、發布狀態（status）以及建立與更新時間。
+- **public.editor_applications**：儲存一般使用者申請編輯者的申請紀錄，包含申請理由（remark）與審核狀態（status）。

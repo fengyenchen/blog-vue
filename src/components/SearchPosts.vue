@@ -14,7 +14,7 @@ watch(
 </script>
 
 <template>
-  <section class="search flex items-center justify-between bg-bg border-y border-primary">
+  <section class="search-posts flex items-center justify-between bg-bg border-y border-primary">
     <div class="search-input pl-8 pr-8 py-4 flex-1">
       <input
         v-model="query"

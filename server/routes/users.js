@@ -7,7 +7,8 @@ usersRouter.get('/', async (request, response, next) => {
     try {
         const { rows } = await pool.query(
             `SELECT id, username, role
-       FROM public.users`,
+       FROM public.users
+       ORDER BY role, id DESC`,
         )
 
         if (rows.length === 0) {

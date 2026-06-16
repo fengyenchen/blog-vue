@@ -1,4 +1,7 @@
 import type { EditorApplication } from '../types/editorApplication.ts'
+import { ref } from 'vue'
+
+export const visibleUsersId = ref<string[]>([])
 
 export const getEditorApplications = async () => {
     const response = await fetch('/api/admin/editor-applications/pending')

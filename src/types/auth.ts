@@ -1,7 +1,7 @@
 export interface User {
-    role: 'admin' | 'editor' | 'user'
     id: string
     username: string
+    role: 'admin' | 'editor' | 'user'
 }
 
 export interface LoginSuccessResponse {
