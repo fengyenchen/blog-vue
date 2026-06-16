@@ -1,7 +1,17 @@
 import type { Post } from '../types/post.ts'
 
-export const editorFetchPosts = async () => {
-    const response = await fetch('/api/editor')
+export const editorFetchPosts = async (userId: string) => {
+    if (!userId) {
+        throw new Error('未偵測到使用者 ID，請重新登入。')
+    }
+
+    const response = await fetch('/api/editor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            user_id: userId
+        })
+    })
 
     if (!response.ok) {
         throw new Error(`Failed to load posts: ${response.status}`)
@@ -41,10 +51,17 @@ export const createArticle = async (
     // 如果使用者有自己填寫摘要，就用填寫的；沒有的話才由系統自動生成
     const finalExcerpt = excerpt?.trim() ? excerpt.trim() : generateExcerpt(content)
 
+    const userId = localStorage.getItem('token')
+
+    if (!userId) {
+        throw new Error('未偵測到使用者 ID，請重新登入。')
+    }
+
     const response = await fetch('/api/editor/edit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
+            user_id: userId,
             title, 
             content, 
             status, 
@@ -71,10 +88,17 @@ export const updateArticle = async (
     // 同樣的邏輯：優先使用使用者自訂的摘要
     const finalExcerpt = excerpt?.trim() ? excerpt.trim() : generateExcerpt(content)
 
+    const userId = localStorage.getItem('token')
+
+    if (!userId) {
+        throw new Error('未偵測到使用者 ID，請重新登入。')
+    }
+
     const response = await fetch(`/api/editor/edit/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
+            user_id: userId,
             title, 
             content, 
             status, 

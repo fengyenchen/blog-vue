@@ -3,12 +3,34 @@ import { pool } from '../db/pool.js'
 
 export const editorRouter = Router()
 
-editorRouter.get('/', async (_request, response, next) => {
+editorRouter.get('/', async (request, response, next) => {
     try {
         const { rows } = await pool.query(
             `SELECT id, user_id, title, content, excerpt, cover_image, status, created_at, updated_at
        FROM public.posts
        ORDER BY created_at DESC, id DESC`,
+        )
+
+        response.json(rows)
+    } catch (error) {
+        next(error)
+    }
+})
+
+editorRouter.post('/', async (request, response, next) => {
+    try {
+        const { user_id } = request.body
+
+        if (!user_id) {
+            return response.status(400).json({ error: '缺少使用者 ID' })
+        }
+
+        const { rows } = await pool.query(
+            `SELECT id, user_id, title, content, excerpt, cover_image, status, created_at, updated_at
+       FROM public.posts
+       WHERE user_id = $1
+       ORDER BY created_at DESC, id DESC`,
+            [user_id]
         )
 
         response.json(rows)
@@ -41,16 +63,15 @@ editorRouter.get('/edit/:id', async (request, response, next) => {
 editorRouter.put('/edit/:id', async (request, response, next) => {
     try {
         const { id } = request.params
-        // 從前端傳來的 JSON payload 裡解構出這 5 個欄位
-        const { title, content, status, cover_image, excerpt } = request.body
+        const { title, content, status, cover_image, excerpt, user_id } = request.body
 
         // 執行 SQL UPDATE 語句，並順便更新 updated_at 為當前時間
         const { rows } = await pool.query(
             `UPDATE public.posts 
              SET title = $1, content = $2, status = $3, cover_image = $4, excerpt = $5, updated_at = NOW()
-             WHERE id = $6 
+             WHERE id = $6 AND user_id = $7
              RETURNING *`,
-            [title, content, status, cover_image, excerpt, id]
+            [title, content, status, cover_image, excerpt, id, user_id]
         )
 
         // 如果資料庫回傳 0 列，代表找不到這個 UUID 的文章
@@ -68,10 +89,11 @@ editorRouter.put('/edit/:id', async (request, response, next) => {
 // 儲存新增的文章
 editorRouter.post('/edit', async (request, response, next) => {
     try {
-        const { title, content, status, cover_image, excerpt } = request.body
-        
-        // 💡 先寫死一個固定 user_id，等做完登入後記住作者後再改成動態找作者
-        const user_id = '7638b2b6-ffe3-4c18-b51c-b8424ee79b6a' 
+        const { user_id, title, content, status, cover_image, excerpt } = request.body
+
+        if (!user_id) {
+            return response.status(400).json({ error: '缺少使用者 ID，無法發布文章' })
+        }
 
         // 空的 id, created_at, updated_at 讓 PostgreSQL 的 DEFAULT 預設值自己去填
         const { rows } = await pool.query(
@@ -91,9 +113,12 @@ editorRouter.post('/edit', async (request, response, next) => {
 editorRouter.delete('/edit/:id', async (request, response, next) => {
     try {
         const { id } = request.params
+        const { user_id } = request.body
         const { rows } = await pool.query(
-            `DELETE FROM public.posts WHERE id = $1 RETURNING id`,
-            [id]
+            `DELETE FROM public.posts 
+             WHERE id = $1 AND user_id = $2
+             RETURNING id`,
+            [id, user_id]
         )
         
         if (rows.length === 0) {

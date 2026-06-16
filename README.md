@@ -145,10 +145,11 @@ npm run dev
 ### 後台編輯者管理模組
 
 * `GET /api/editor`：取得後台全文章列表（包含草稿與已發布，依時間降冪排序）。
+* `POST /api/editor`：取得後台該使用者的文章列表（包含草稿與已發布，依時間降冪排序）。需在 body 帶入 `{ user_id }`。
 * `GET /api/editor/edit/:id`：取得單一文章詳細內容。
-* `POST /api/editor/edit`：儲存新增的文章。需在 body 帶入 `{ title, content, status, cover_image, excerpt }`。
-* `PUT /api/editor/edit/:id`：儲存更新的文章。需在 body 帶入 `{ title, content, status, cover_image, excerpt }`，並自動更新 `updated_at`。
-* `DELETE /api/editor/edit/:id`：刪除指定文章。
+* `POST /api/editor/edit`：儲存新增的文章。需在 body 帶入 `{ user_id, title, content, status, cover_image, excerpt }`。
+* `PUT /api/editor/edit/:id`：儲存更新的文章。需在 body 帶入 `{ user_id, title, content, status, cover_image, excerpt }`，限文章作者本人修改，並自動更新 `updated_at`。
+* `DELETE /api/editor/edit/:id`：刪除指定文章。需在 body 帶入 `{ user_id }`，限文章作者本人刪除。
 
 ### 後台管理員權限模組
 

@@ -19,7 +19,13 @@ const allPosts = ref<Post[]>([])
 
 const load = async () => {
   if (props.isEditor) {
-    allPosts.value = await editorFetchPosts()
+    const userId = localStorage.getItem('token')
+    if (!userId) {
+      alert('未偵測到登入狀態，請重新登入。')
+      return
+    }
+
+    allPosts.value = await editorFetchPosts(userId)
     return
   }
   allPosts.value = await fetchPosts()
