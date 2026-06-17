@@ -1,14 +1,14 @@
 -- 啟用 UUID 擴充功能
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 建立 users 資料表
+-- 建立 users 資料表（已移除 updated_at 後方多餘的逗號）
 CREATE TABLE IF NOT EXISTS public.users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     role TEXT NOT NULL DEFAULT 'user'::text,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
 -- 建立 posts 資料表
