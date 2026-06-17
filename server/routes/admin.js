@@ -66,7 +66,7 @@ adminRouter.post('/users/:userId/:role', async (request, response, next) => {
     try {
         const { rows } = await pool.query(
             `UPDATE public.users
-             SET role = $1
+             SET role = $1, updated_at = NOW()
              WHERE id = $2
              RETURNING *`,
             [request.params.role, request.params.userId]

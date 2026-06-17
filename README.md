@@ -141,7 +141,7 @@ npm run dev
 
 ### 使用者管理模組
 
-* `GET /api/users`：取得系統所有使用者列表（包含 ID、名稱與角色）。
+* `GET /api/users`：取得系統所有使用者列表（包含 ID、名稱與角色）。有過濾重複申請之舊帳號，僅保留最新建立之紀錄。
 * `GET /api/users/:id`：透過 ID 取得指定使用者的名稱與基本資料。
 
 ### 後台編輯者管理模組
@@ -149,7 +149,7 @@ npm run dev
 * `GET /api/editor/user/:userId`：取得後台該使用者的文章列表（包含草稿與已發布，依時間降冪排序）。
 * `GET /api/editor/edit/:id`：取得單一文章詳細內容。
 * `POST /api/editor/edit`：儲存新增的文章。需在 body 帶入 `{ user_id, title, content, status, cover_image, excerpt }`，限文章作者本人新增。
-* `PUT /api/editor/edit/:id`：儲存更新的文章。需在 body 帶入 `{ user_id, title, content, status, cover_image, excerpt }`，限文章作者本人或系統管理員修改，並自動更新 `updated_at`。
+* `PUT /api/editor/edit/:id`：儲存更新的文章。需在 body 帶入 `{ user_id, title, content, status, cover_image, excerpt }`，並在 URL Query 帶入 `?role={role}`，限文章作者本人或系統管理員修改，並自動更新 `updated_at。
 * `DELETE /api/editor/edit/:id`：刪除指定文章。需在 URL Query 帶入 `?userId={userId}` 作為操作者驗證，限文章作者本人或系統管理員刪除。
 
 ### 後台管理員權限模組
@@ -184,11 +184,56 @@ npm run dev
 
 ## 資料庫結構
 
-本專案使用 PostgreSQL 作為基礎架構，核心資料表包含 `users`、`posts` 與 `editor_applications`。初始化時請使用 `init.sql` 建立資料表，各資料表核心欄位說明如下：
+本專案採用 **PostgreSQL** 作為關聯式資料庫（RDBMS）基礎架構。系統啟用 `uuid-ossp` 擴充功能，所有主鍵（`id`）皆採用 `UUID` 自動生成，確保資料的唯一性與高擴充性。各資料表之間的約束與關聯設計如下：
 
-* **public.users**：儲存使用者帳號、密碼雜湊值（`password_hash`）與權限角色（`role`，包含 `user` / `editor` / `admin`）。
-* **public.posts**：儲存文章標題、Markdown 原文內容（`content`）、文章摘要、封面圖、發布狀態（`status`：`draft` 或 `published`）以及建立與更新時間。
-* **public.editor_applications**：儲存一般使用者申請編輯者的申請紀錄，包含申請理由（`remark`）與審核狀態（`status`：`pending` / `approved` / `rejected`）。
+### 實體關係圖概要 (ERD)
+
+* `users.id` (1) <------- (N) `posts.user_id` *(外鍵約束，串聯刪除)*
+* `users.id` (1) <------- (N) `editor_applications.user_id` *(外鍵約束，串聯刪除)*
+
+---
+
+### 1. 使用者資料表 (`public.users`)
+
+儲存全站使用者的核心帳號憑證與 RBAC 權限角色。
+
+| 欄位名稱 | 資料型態 | 特性 / 約束 | 預設值 / 說明 |
+| --- | --- | --- | --- |
+| `id` | `UUID` | `PRIMARY KEY` | `gen_random_uuid()`，使用者唯一識別碼 |
+| `username` | `TEXT` | `NOT NULL`, `UNIQUE` | 登入帳號（信箱），不可重複 |
+| `password_hash` | `TEXT` | `NOT NULL` | 加密後的密碼雜湊值 |
+| `role` | `TEXT` | `NOT NULL` | `'user'` (預設一般讀者) / `'editor'` / `'admin'` |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL` | `now()`，帳號註冊建立時間 |
+| `updated_at` | `TIMESTAMPTZ` | `NOT NULL` | `now()`，帳號最後資料更新時間 |
+
+### 2. 文章資料表 (`public.posts`)
+
+儲存後台發布的所有部落格文章內容。
+
+| 欄位名稱 | 資料型態 | 特性 / 約束 | 預設值 / 說明 |
+| --- | --- | --- | --- |
+| `id` | `UUID` | `PRIMARY KEY` | `gen_random_uuid()` |
+| `user_id` | `UUID` | `NOT NULL`, `FOREIGN KEY` | 指向 `users(id)`，當使用者被刪除時自動引發 `ON DELETE CASCADE` 串聯刪除 |
+| `title` | `TEXT` | `NOT NULL` | 文章標題 |
+| `content` | `TEXT` | `NOT NULL` | 文章正文（以 Markdown 原文字串存放） |
+| `excerpt` | `TEXT` | `NULL` | 文章摘要，若未填寫則由系統自動擷取正文前 100 字 |
+| `cover_image` | `TEXT` | `NULL` | 封面圖之網址或路徑 |
+| `status` | `TEXT` | `NOT NULL` | `'draft'` (預設草稿) / `'published'` (已發布) |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL` | `now()`，文章初次建立時間 |
+| `updated_at` | `TIMESTAMPTZ` | `NOT NULL` | `now()`，文章最後修改時間 |
+
+### 3. 編輯者申請紀錄表 (`public.editor_applications`)
+
+儲存一般使用者（`user`）提升權限至編輯者（`editor`）的審核流水帳。
+
+| 欄位名稱 | 資料型態 | 特性 / 約束 | 預設值 / 說明 |
+| --- | --- | --- | --- |
+| `id` | `UUID` | `PRIMARY KEY` | `gen_random_uuid()` |
+| `user_id` | `UUID` | `NOT NULL`, `FOREIGN KEY` | 指向 `users(id)`，支持 `ON DELETE CASCADE` |
+| `remark` | `TEXT` | `NULL` | 申請人填寫的申請理由或備註 |
+| `status` | `TEXT` | `NOT NULL` | `'pending'` (預設待審核) / `'approved'` / `'rejected'` |
+| `created_at` | `TIMESTAMPTZ` | `NULL` | `NOW()`，提交申請時間 |
+| `updated_at` | `TIMESTAMPTZ` | `NULL` | `NOW()`，管理員最後審核變更時間 |
 
 ---
 

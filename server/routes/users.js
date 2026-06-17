@@ -6,9 +6,9 @@ export const usersRouter = Router()
 usersRouter.get('/', async (request, response, next) => {
     try {
         const { rows } = await pool.query(
-            `SELECT id, username, role
-       FROM public.users
-       ORDER BY role, id DESC`,
+            `SELECT DISTINCT ON (username) id, username, role, created_at, updated_at
+             FROM public.users
+             ORDER BY username, created_at DESC`,
         )
 
         if (rows.length === 0) {
@@ -16,7 +16,17 @@ usersRouter.get('/', async (request, response, next) => {
             return
         }
 
-        response.json(rows)
+        // 依照角色和 ID 進行排序，並且同一角色內按照 ID 降序排列
+        const sortedRows = rows.sort((a, b) => {
+            // 優先依據角色排序 (例如 admin -> editor -> user)
+            if (a.role !== b.role) {
+                return a.role.localeCompare(b.role);
+            }
+            // 角色相同時，依據 id 降冪排序
+            return b.id.localeCompare(a.id);
+        });
+
+        response.json(sortedRows)
     } catch (error) {
         next(error)
     }
@@ -25,7 +35,7 @@ usersRouter.get('/', async (request, response, next) => {
 usersRouter.get('/:id', async (request, response, next) => {
     try {
         const { rows } = await pool.query(
-            `SELECT id, username, role
+            `SELECT id, username, role, created_at, updated_at
        FROM public.users
        WHERE id = $1
        LIMIT 1`,

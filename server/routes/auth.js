@@ -8,7 +8,7 @@ authRouter.post('/', async (request, response, next) => {
         const { username, password } = request.body
 
         const { rows } = await pool.query(
-            `SELECT id, username, password_hash, role 
+            `SELECT id, username, password_hash, role, created_at, updated_at 
        FROM public.users 
        WHERE username = $1 AND (role = 'admin' OR role = 'editor')
        LIMIT 1`,
@@ -29,6 +29,8 @@ authRouter.post('/', async (request, response, next) => {
                     role: user.role,
                     id: user.id,
                     username: user.username,
+                    created_at: user.created_at,
+                    updated_at: user.updated_at
                 },
             })
         } else {
