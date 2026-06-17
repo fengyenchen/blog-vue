@@ -79,10 +79,13 @@ const saveArticle = async () => {
 
     if (!postId.value) {
         // 新增文章
-        await createArticle(title, content, status, finalCoverImage, finalExcerpt)
+        const userId = localStorage.getItem('token') || ''
+        await createArticle(userId, title, content, status, finalCoverImage, finalExcerpt)
     } else {
         // 更新文章
-        await updateArticle(postId.value, title, content, status, finalCoverImage, finalExcerpt)
+        const userId = localStorage.getItem('token') || ''
+        const role = localStorage.getItem('role') || ''
+        await updateArticle(userId, role, postId.value, title, content, status, finalCoverImage, finalExcerpt)
     }
     
     alert('完成')

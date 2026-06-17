@@ -5,13 +5,7 @@ export const editorFetchPosts = async (userId: string) => {
         throw new Error('未偵測到使用者 ID，請重新登入。')
     }
 
-    const response = await fetch('/api/editor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            user_id: userId
-        })
-    })
+    const response = await fetch(`/api/editor/user/${userId}`)
 
     if (!response.ok) {
         throw new Error(`Failed to load posts: ${response.status}`)
@@ -42,6 +36,7 @@ const generateExcerpt = (content: string): string => {
 
 // 新增文章
 export const createArticle = async (
+    userId: string,
     title: string, 
     content: string, 
     status: 'draft' | 'published', 
@@ -50,8 +45,6 @@ export const createArticle = async (
 ) => {
     // 如果使用者有自己填寫摘要，就用填寫的；沒有的話才由系統自動生成
     const finalExcerpt = excerpt?.trim() ? excerpt.trim() : generateExcerpt(content)
-
-    const userId = localStorage.getItem('token')
 
     if (!userId) {
         throw new Error('未偵測到使用者 ID，請重新登入。')
@@ -78,6 +71,8 @@ export const createArticle = async (
 
 // 更新文章
 export const updateArticle = async (
+    userId: string,
+    role: string,
     id: string, 
     title: string, 
     content: string, 
@@ -85,16 +80,13 @@ export const updateArticle = async (
     coverImage: string | null,
     excerpt: string | null
 ) => {
-    // 同樣的邏輯：優先使用使用者自訂的摘要
     const finalExcerpt = excerpt?.trim() ? excerpt.trim() : generateExcerpt(content)
-
-    const userId = localStorage.getItem('token')
 
     if (!userId) {
         throw new Error('未偵測到使用者 ID，請重新登入。')
     }
 
-    const response = await fetch(`/api/editor/edit/${id}`, {
+    const response = await fetch(`/api/editor/edit/${id}?role=${role}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -113,8 +105,13 @@ export const updateArticle = async (
     return (await response.json()) as Post
 }
 
-export const deleteArticle = async (id: string) => {
-    const response = await fetch(`/api/editor/edit/${id}`, {
+// 刪除文章
+export const deleteArticle = async (id: string, userId: string, role: string) => {
+    if (!userId) {
+        throw new Error('未偵測到使用者 ID，無法執行刪除。')
+    }
+
+    const response = await fetch(`/api/editor/edit/${id}?userId=${userId}&role=${role}`, {
         method: 'DELETE'
     })
 

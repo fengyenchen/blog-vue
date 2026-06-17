@@ -3,34 +3,16 @@ import { pool } from '../db/pool.js'
 
 export const editorRouter = Router()
 
-editorRouter.get('/', async (request, response, next) => {
+editorRouter.get('/user/:userId', async (request, response, next) => {
     try {
-        const { rows } = await pool.query(
-            `SELECT id, user_id, title, content, excerpt, cover_image, status, created_at, updated_at
-       FROM public.posts
-       ORDER BY created_at DESC, id DESC`,
-        )
-
-        response.json(rows)
-    } catch (error) {
-        next(error)
-    }
-})
-
-editorRouter.post('/', async (request, response, next) => {
-    try {
-        const { user_id } = request.body
-
-        if (!user_id) {
-            return response.status(400).json({ error: '缺少使用者 ID' })
-        }
+        const { userId } = request.params
 
         const { rows } = await pool.query(
             `SELECT id, user_id, title, content, excerpt, cover_image, status, created_at, updated_at
        FROM public.posts
        WHERE user_id = $1
        ORDER BY created_at DESC, id DESC`,
-            [user_id]
+            [userId]
         )
 
         response.json(rows)
@@ -63,23 +45,38 @@ editorRouter.get('/edit/:id', async (request, response, next) => {
 editorRouter.put('/edit/:id', async (request, response, next) => {
     try {
         const { id } = request.params
-        const { title, content, status, cover_image, excerpt, user_id } = request.body
+        const { user_id, title, content, status, cover_image, excerpt } = request.body
+        const { role } = request.query
 
-        // 執行 SQL UPDATE 語句，並順便更新 updated_at 為當前時間
-        const { rows } = await pool.query(
-            `UPDATE public.posts 
-             SET title = $1, content = $2, status = $3, cover_image = $4, excerpt = $5, updated_at = NOW()
-             WHERE id = $6 AND user_id = $7
-             RETURNING *`,
-            [title, content, status, cover_image, excerpt, id, user_id]
-        )
+        if (!user_id) {
+            return response.status(400).json({ error: '缺少操作者 ID，無法更新文章' })
+        }
 
-        // 如果資料庫回傳 0 列，代表找不到這個 UUID 的文章
+        let result;
+        if (role === 'admin') {
+            result = await pool.query(
+                `UPDATE public.posts 
+                 SET title = $1, content = $2, status = $3, cover_image = $4, excerpt = $5, updated_at = NOW()
+                 WHERE id = $6
+                 RETURNING *`,
+                [title, content, status, cover_image, excerpt, id]
+            )
+        } else {
+            result = await pool.query(
+                `UPDATE public.posts 
+                 SET title = $1, content = $2, status = $3, cover_image = $4, excerpt = $5, updated_at = NOW()
+                 WHERE id = $6 AND user_id = $7
+                 RETURNING *`,
+                [title, content, status, cover_image, excerpt, id, user_id]
+            )
+        }
+
+        const { rows } = result
+
         if (rows.length === 0) {
             return response.status(404).json({ error: '找不到該文章，無法更新' })
         }
 
-        // 把更新成功的文章資料吐回給前端
         response.json(rows[0])
     } catch (error) {
         next(error)
@@ -95,7 +92,6 @@ editorRouter.post('/edit', async (request, response, next) => {
             return response.status(400).json({ error: '缺少使用者 ID，無法發布文章' })
         }
 
-        // 空的 id, created_at, updated_at 讓 PostgreSQL 的 DEFAULT 預設值自己去填
         const { rows } = await pool.query(
             `INSERT INTO public.posts (user_id, title, content, status, cover_image, excerpt)
              VALUES ($1, $2, $3, $4, $5, $6)
@@ -113,13 +109,29 @@ editorRouter.post('/edit', async (request, response, next) => {
 editorRouter.delete('/edit/:id', async (request, response, next) => {
     try {
         const { id } = request.params
-        const { user_id } = request.body
-        const { rows } = await pool.query(
-            `DELETE FROM public.posts 
-             WHERE id = $1 AND user_id = $2
-             RETURNING id`,
-            [id, user_id]
-        )
+        const { userId, role } = request.query
+
+        if (!userId) {
+            return response.status(400).json({ error: '缺少使用者 ID，無法刪除文章' })
+        }
+
+        let result
+        if (role === 'admin') {
+            result = await pool.query(
+                `DELETE FROM public.posts 
+                WHERE id = $1 
+                RETURNING id`,
+                [id]
+            )
+        } else {
+            result = await pool.query(
+                `DELETE FROM public.posts 
+                WHERE id = $1 AND user_id = $2 
+                RETURNING id`,
+                [id, userId]
+            )
+        }
+        const { rows } = result
         
         if (rows.length === 0) {
             return response.status(404).json({ error: '找不到該文章，無法刪除' })

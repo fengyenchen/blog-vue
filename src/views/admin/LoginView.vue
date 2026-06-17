@@ -19,7 +19,7 @@ const handleSubmit = async () => {
     if (data.success && (data.user.role === 'editor' || data.user.role === 'admin')) {
       // 使用 data.user.id 作為登入憑證，並存儲角色資訊
       localStorage.setItem('token', data.user.id)
-      localStorage.setItem('role', data.user.role)
+      localStorage.setItem('role', data.user.role) 
 
       router.push('/editor')
     }

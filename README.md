@@ -127,13 +127,15 @@ npm run dev
 
 ## API 預設路由
 
+* `GET /api/health`：檢查 API 是否啟動。
+
 ### 身分驗證模組
 
 * `POST /api/auth`：使用者登入驗證。需在 body 帶入 `{ username, password }`。驗證成功回傳 `200` 與使用者資訊，失敗回傳 `401`。
 
+
 ### 文章模組
 
-* `GET /api/health`：檢查 API 是否啟動。
 * `GET /api/posts`：取得所有已發布的文章列表（狀態為 `published`，依時間降冪排序）。
 * `GET /api/posts/post/:id`：取得單篇已發布文章的詳細內容。
 
@@ -144,15 +146,15 @@ npm run dev
 
 ### 後台編輯者管理模組
 
-* `GET /api/editor`：取得後台全文章列表（包含草稿與已發布，依時間降冪排序）。
-* `POST /api/editor`：取得後台該使用者的文章列表（包含草稿與已發布，依時間降冪排序）。需在 body 帶入 `{ user_id }`。
+* `GET /api/editor/user/:userId`：取得後台該使用者的文章列表（包含草稿與已發布，依時間降冪排序）。
 * `GET /api/editor/edit/:id`：取得單一文章詳細內容。
-* `POST /api/editor/edit`：儲存新增的文章。需在 body 帶入 `{ user_id, title, content, status, cover_image, excerpt }`。
-* `PUT /api/editor/edit/:id`：儲存更新的文章。需在 body 帶入 `{ user_id, title, content, status, cover_image, excerpt }`，限文章作者本人修改，並自動更新 `updated_at`。
-* `DELETE /api/editor/edit/:id`：刪除指定文章。需在 body 帶入 `{ user_id }`，限文章作者本人刪除。
+* `POST /api/editor/edit`：儲存新增的文章。需在 body 帶入 `{ user_id, title, content, status, cover_image, excerpt }`，限文章作者本人新增。
+* `PUT /api/editor/edit/:id`：儲存更新的文章。需在 body 帶入 `{ user_id, title, content, status, cover_image, excerpt }`，限文章作者本人或系統管理員修改，並自動更新 `updated_at`。
+* `DELETE /api/editor/edit/:id`：刪除指定文章。需在 URL Query 帶入 `?userId={userId}` 作為操作者驗證，限文章作者本人或系統管理員刪除。
 
 ### 後台管理員權限模組
 
+* `GET /api/admin`：取得後台全文章列表（包含草稿與已發布，依時間降冪排序）。
 * `GET /api/admin/editor-applications`：取得所有編輯者資格申請紀錄。
 * `GET /api/admin/editor-applications/pending`：僅取得處於「待審核（`pending`）」狀態的編輯者申請。
 * `PUT /api/admin/editor-applications/:id/:status`：審核編輯者申請，變更狀態為 `approved` 或 `rejected`。

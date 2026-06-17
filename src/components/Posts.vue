@@ -19,7 +19,7 @@ const allPosts = ref<Post[]>([])
 
 const load = async () => {
   if (props.isEditor) {
-    const userId = localStorage.getItem('token')
+    const userId = localStorage.getItem('token') || ''
     if (!userId) {
       alert('未偵測到登入狀態，請重新登入。')
       return
@@ -53,6 +53,8 @@ const openPost = (id: string) => {
 
 <template>
   <section class="posts">
+    <p v-if="items.length === 0" class="text-center text-gray-500 py-12">目前沒有文章。</p>    
+
     <ul class="posts-list">
       <li v-for="item in items" 
           :key="item.id" 
