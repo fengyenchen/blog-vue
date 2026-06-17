@@ -176,8 +176,9 @@ const cancelEdit = () => {
             v-if="currentArticle.cover_image" 
             :src="currentArticle.cover_image" 
             alt="Cover Preview" 
-            class="w-full max-h-48 object-cover rounded mb-4"
+            class="w-full object-cover rounded mb-4"
           />
+          <span v-if="currentArticle.cover_image" class="block text-sm text-gray-500 text-center border-b border-gray-300 py-2">封面圖片預覽</span>
           <div v-html="parsedMarkdown"></div>
         </div>
 

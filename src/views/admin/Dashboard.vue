@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// import { ref, onMounted } from 'vue'
 import EditorApplication from '../../components/EditorApplication.vue'
 import AdjustUserRoles from '../../components/AdjustUserRoles.vue'
 
@@ -10,11 +9,11 @@ import AdjustUserRoles from '../../components/AdjustUserRoles.vue'
     <div class="flex md:flex-row flex-col justify-between items-center mb-6 space-y-4 md:space-y-0">
       <h1 class="text-2xl font-bold text-primary">儀表板</h1>
       <div class="flex items-center space-x-3">
-        <button 
+        <!-- <button 
           class="bg-primary text-white border border-primary px-4 py-2 transition cursor-pointer hover:bg-primary/90 rounded"
         >
           設定
-        </button>
+        </button> -->
         <RouterLink 
           to="/" 
           class="bg-white text-gray-600 border border-gray-300 font-medium px-4 py-2 transition cursor-pointer hover:bg-gray-50 rounded"

@@ -21,7 +21,6 @@
 
 ```text
 blog-vue/
-├── .vscode/             # VS Code 專案建置與設定
 ├── dist/                # 前端打包後的正式環境產出物
 ├── node_modules/        # 專案依賴套件套件庫
 ├── public/              # 公開靜態資源
@@ -132,6 +131,7 @@ npm run dev
 ### 身分驗證模組
 
 * `POST /api/auth`：使用者登入驗證。需在 body 帶入 `{ username, password }`。驗證成功回傳 `200` 與使用者資訊，失敗回傳 `401`。
+* `POST /api/auth/change-password`：新增編輯者在設定區修改密碼功能。需在 body 帶入 `{ username, password, newPassword }`。僅限 `admin` 或 `editor` 權限者操作，變更成功回傳 `200` 與最新使用者資訊，失敗回傳 `401`。
 
 
 ### 文章模組

@@ -95,3 +95,49 @@ authRouter.post('/apply-for-editor', async (request, response, next) => {
         next(error)
     }
 })
+
+authRouter.post('/change-password', async (request, response, next) => {
+    try {
+        const { username, password, newPassword } = request.body
+
+        const { rows } = await pool.query(
+            `SELECT id, username, password_hash, role, created_at, updated_at 
+       FROM public.users 
+       WHERE username = $1 AND (role = 'admin' OR role = 'editor')
+       LIMIT 1`,
+            [username],
+        )
+
+        if (rows.length === 0) {
+            response.status(401).json({ success: false })
+            return
+        }
+
+        const user = rows[0]
+
+        if (user.password_hash === password) {
+            const { rows } = await pool.query(
+                `UPDATE public.users
+            SET password_hash = $1, updated_at = NOW()
+            WHERE username = $2 AND (role = 'admin' OR role = 'editor')
+            RETURNING id, username, role, created_at, updated_at`,
+                    [newPassword, username],
+                )
+
+            response.json({
+                success: true,
+                user: {
+                    role: user.role,
+                    id: user.id,
+                    username: user.username,
+                    created_at: user.created_at,
+                    updated_at: user.updated_at
+                },
+            })
+        } else {
+            response.status(401).json({ success: false })
+        }
+    } catch (error) {
+        next(error)
+    }
+})

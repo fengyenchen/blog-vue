@@ -7,6 +7,7 @@ import EditorView from '../views/admin/EditorView.vue'
 import Dashboard from '../views/admin/Dashboard.vue'
 import EditFormView from '../views/admin/EditFormView.vue'
 import applyForEditorView from '../views/frontend/ApplyForEditorView.vue'
+import EditorSettingsView from '../views/admin/EditorSettingsView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -72,6 +73,15 @@ const router = createRouter({
       meta: { 
         requiresAuth: true, 
         roles: ['admin']
+      }
+    },
+    {
+      path: '/editor/settings',
+      name: 'editorSettings',
+      component: EditorSettingsView,
+      meta: { 
+        requiresAuth: true, 
+        roles: ['editor', 'admin']
       }
     },
   ],
