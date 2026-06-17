@@ -1,6 +1,6 @@
 # Blog-Vue
 
-個人部落格。前台提供文章閱讀介面，後台提供文章管理與 Markdown 編輯體驗。
+基於 Vue 生態系開發的全端網頁應用，前台提供具備流暢響應式設計的內容閱讀介面，後台則整合 Markdown 解析器與即時預覽功能，實現現代化的內容管理系統。
 
 ---
 
@@ -9,8 +9,8 @@
 - **快速開發**：使用 Vite 建立開發環境，支援快速啟動與熱更新。
 - **Vue 3 架構**：以 Vue 3 Single File Components (SFC) 撰寫頁面與元件。
 - **Tailwind CSS**：透過 `@tailwindcss/vite` 整合 Tailwind CSS 進行現代化切版。
-- **多角色權限控制 (RBAC)**：嚴格劃分 `user` (一般讀者)、`editor` (文章編輯者)、`admin` (最高管理員) 三種角色權限。
-- **全域路由守衛 (Route Guards)**：採用全域前置守衛攔截非法請求，防止未授權訪客或權限不足之角色透過手動輸入網址強行進入後台。
+- **多角色權限控制**：嚴格劃分 `user` (一般讀者)、`editor` (文章編輯者)、`admin` (最高管理員) 三種角色權限。
+- **全域路由守衛**：採用全域前置守衛攔截非法請求，防止未授權訪客或權限不足之角色透過手動輸入網址強行進入後台。
 - **Markdown 編輯**：後台整合 `md-editor-v3`，提供 Markdown 編輯與雙欄即時預覽；文章正文會以 Markdown 原文儲存在資料庫。
 - **前後台頁面分離**：`src/views/frontend` 存放前台公開頁面，`src/views/admin` 存放後台管理頁面。
 - **Node.js API**：`server/` 提供 Express + PostgreSQL 後端，前端透過 `/api` 取得文章與驗證資料。
@@ -65,11 +65,12 @@ blog-vue/
 │   │   └── post.ts              # 文章結構相關型別
 │   ├── views/
 │   │   ├── admin/       # 後台管理頁面
-│   │   │   ├── AdminLoginView.vue # 最高管理員登入
-│   │   │   ├── Dashboard.vue      # 管理員主儀表板
-│   │   │   ├── EditFormView.vue   # 文章新增/編輯表單頁面
-│   │   │   ├── EditorView.vue     # 編輯者專屬管理後台
-│   │   │   └── LoginView.vue      # 編輯者登入
+│   │   │   ├── AdminLoginView.vue   # 最高管理員登入
+│   │   │   ├── Dashboard.vue        # 管理員主儀表板
+│   │   │   ├── EditFormView.vue     # 文章新增/編輯表單頁面
+│   │   │   ├── EditorSettingsView.vue # 編輯者個人設定頁面（如修改密碼等）
+│   │   │   ├── EditorView.vue       # 編輯者專屬管理後台
+│   │   │   └── LoginView.vue        # 編輯者登入
 │   │   └── frontend/    # 前台公開頁面
 │   │       ├── ApplyForEditorView.vue # 申請成為編輯者頁面
 │   │       ├── HomeView.vue           # 部落格首頁
@@ -77,10 +78,10 @@ blog-vue/
 │   ├── App.vue          # 應用程式根元件
 │   ├── main.ts          # Vue 專案啟動入口檔 (TypeScript)
 │   └── style.css        # 全域樣式與 Tailwind 核心配置
-├── index.html           # 前端單頁網頁 (SPA) 模板入口
 ├── .env                 # 本地環境變數設定檔 (已加入 .gitignore)
 ├── .env.example         # 環境變數設定範例模板
 ├── .gitignore           # Git 忽略檔案清單
+├── index.html           # 前端單頁網頁 (SPA) 模板入口
 ├── init.sql             # PostgreSQL 資料庫初始化建表腳本
 ├── package-lock.json    # 精確鎖定套件版本紀錄檔
 ├── package.json         # 專案套件依賴與 npm scripts 指令配置
@@ -88,6 +89,7 @@ blog-vue/
 ├── tsconfig.app.json    # 前端應用程式 TS 設定
 ├── tsconfig.json        # TypeScript 主設定檔
 ├── tsconfig.node.json   # Vite 環境節點 TS 設定
+├── vercel.json          # Vercel 生產環境路由與代理配置文件
 └── vite.config.ts       # Vite 核心建置與軟體外掛設定
 ```
 
@@ -114,7 +116,35 @@ PORT=3000
 DATABASE_URL=postgresql://postgres:your_password@localhost:5432/blog_vue
 ```
 
-### 4. 啟動前後端開發伺服器
+### 4. 資料庫初始化與建立 Admin 帳號
+
+本專案的身分驗證全面採用 `bcrypt` 進行密碼雜湊加密。新配置開發環境時，請依循以下步驟初始化資料庫並建立最高管理員`（admin）`帳號：
+
+#### 步驟 A：執行初始化腳本
+
+使用專案根目錄下的 `init.sql` 檔案，在 PostgreSQL 中建立對應的資料表（`users`, `posts`, `editor_applications`）。
+
+#### 步驟 B：產生 Admin 密碼的 Bcrypt 雜湊值
+
+**絕對不能**直接將明文密碼寫入資料庫的 `password_hash` 欄位。請在終端機執行以下指令，利用 Node.js 快速計算出加密後的雜湊字串（請將 `'你的管理員密碼'` 替換成你想設定的密碼）：
+
+```bash
+node -e "console.log(require('bcrypt').hashSync('你的管理員密碼', 10))"
+```
+
+*執行後會輸出一個以 `$2b$10$` 開頭、長度為 60 個字元的加密字串。*
+
+#### 步驟 C：手動插入 Admin 資料
+
+打開你的資料庫管理工具，執行以下 SQL 語法手動建立 `admin` 帳號（請將剛剛產生的雜湊字串貼入 `password_hash`）：
+
+```sql
+INSERT INTO public.users (username, password_hash, role) 
+VALUES ('admin', '把步驟 B 產生的雜湊字串貼在這裡', 'admin');
+
+```
+
+### 5. 啟動前後端開發伺服器
 
 ```bash
 npm run dev
@@ -162,13 +192,13 @@ npm run dev
 
 ---
 
-## 身分驗證與路由安全機制 (RBAC)
+## 身分驗證與路由安全機制
 
 本專案實作了嚴格的前後台角色分離防禦機制，核心邏輯如下：
 
 1. **憑證管理**：使用者登入成功後，前端會將身分識別（`user_id`）與權限類別（`role`）寫入本地 `localStorage`（對應為 `token` 與 `role`）。
 2. **全域前置守衛 (`router.beforeEach`)**：
-* **無權限攔截**：一般未登入的 `user` (訪客) 嘗試透過網址直接訪問後台管理（`/admin` 或 `/editor`）時，守衛會自動識別目標路徑，精確重導向至對應的登入頁面（`LoginView` 或 `AdminLoginView`）。
+* **無權限攔截**：一般未登入的訪客 (或一般讀者) 嘗試透過網址直接訪問後台管理（`/admin` 或 `/editor`）時，守衛會自動識別目標路徑，精確重導向至對應的登入頁面（`LoginView` 或 `AdminLoginView`）。
 * **越權攔截**：已登入的角色若企圖跨越權限界線（例如 `editor` 試圖進入 `/admin/dashboard`），守衛將彈出「權限不足」提示，並自動將其彈回所屬的合法操作區域。
 * **強制登出分離**：為了落實「後台人員需先登出才能回到前台」的專屬設計，當已登入的 `admin` 或 `editor` 主動切換至不需要驗證的公開頁面（如首頁 `home`、申請頁 `applyForEditor` 或登入頁）時，守衛會自動清除 `localStorage` 中的身分憑證，確保其以乾淨的普通訪客狀態回歸前台。
 
@@ -250,6 +280,20 @@ npm run build
 ```bash
 npm run preview
 ```
+
+---
+
+## 部署架構與反向代理設定
+
+本專案採用現代化前後端完全分離的架構進行部署，免去跨網域的煩惱：
+
+- **前端網頁 (Client)**：部署於 **Vercel** 平台。
+- **後端 API (Server)**：部署於 **Render** 平台（並連線至雲端 PostgreSQL 資料庫）。
+
+### 跨網域請求代理機制
+為了確保前後端溝通順暢，專案在不同環境下採用了對應的反向代理機制：
+1. **開發環境**：前端透過 `vite.config.ts` 的 `server.proxy` 設定，將發往 `/api` 的請求代理至本地的 `http://localhost:3000`。
+2. **生產環境**：專案根目錄配置了 `vercel.json`。當專案打包部署至 Vercel 後，網頁伺服器會依據 `rewrites` 規則，自動將前端所有 `/api/*` 的請求，在後端重寫並反向代理至實際的 API 伺服器網址 `https://blog-vue-api.onrender.com/api/*`，確保生產環境的請求同樣維持同源，兼顧安全與便利。
 
 ---
 

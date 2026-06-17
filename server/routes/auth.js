@@ -1,7 +1,9 @@
 import { Router } from 'express'
+import bcrypt from 'bcrypt';
 import { pool } from '../db/pool.js'
 
 export const authRouter = Router()
+const saltRounds = 10; // 雜湊的加鹽複雜度
 
 authRouter.post('/', async (request, response, next) => {
     try {
@@ -22,7 +24,9 @@ authRouter.post('/', async (request, response, next) => {
 
         const user = rows[0]
 
-        if (user.password_hash === password) {
+        // 使用 bcrypt 比對密碼
+        const isPasswordMatch = await bcrypt.compare(password, user.password_hash)
+        if (isPasswordMatch) {
             response.json({
                 success: true,
                 user: {
@@ -45,11 +49,14 @@ authRouter.post('/apply-for-editor', async (request, response, next) => {
     try {
         const { username, password, remark } = request.body
 
+        // 將密碼進行雜湊處理
+        const hashedPassword = await bcrypt.hash(password, saltRounds)
+
         const tempUser = await pool.query(
             `INSERT INTO public.users (username, password_hash, role) 
              VALUES ($1, $2, 'user') 
              RETURNING id, username, role`,
-            [username, password]
+            [username, hashedPassword]
         )
         
         const newUser = tempUser.rows[0]
@@ -115,13 +122,19 @@ authRouter.post('/change-password', async (request, response, next) => {
 
         const user = rows[0]
 
+        // 使用 bcrypt 比對密碼
+        const isPasswordMatch = await bcrypt.compare(password, user.password_hash)
+
+        // 將「新密碼」重新雜湊加鹽
+        const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds)
+
         if (user.password_hash === password) {
             const { rows } = await pool.query(
                 `UPDATE public.users
             SET password_hash = $1, updated_at = NOW()
             WHERE username = $2 AND (role = 'admin' OR role = 'editor')
             RETURNING id, username, role, created_at, updated_at`,
-                    [newPassword, username],
+                    [hashedNewPassword, username],
                 )
 
             response.json({
