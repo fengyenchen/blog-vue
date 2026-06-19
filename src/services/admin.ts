@@ -1,5 +1,6 @@
 import type { EditorApplication } from '../types/editorApplication.ts'
 import { ref } from 'vue'
+import type { Post } from '../types/post.ts'
 
 export const visibleUsersId = ref<string[]>([])
 
@@ -42,5 +43,21 @@ export const changeUserRole = async (userId: string, role: string) => {
         throw new Error(`Failed to update user role: ${response.status}`)
     }
 
+    return await response.json()
+}
+
+export const updatePostStatus = async (postId: string, status: { is_pinned?: boolean; is_disabled?: boolean }) => {
+    const response = await fetch(`/api/admin/posts/${postId}/status`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(status)
+    })
+
+    if (!response.ok) {
+        throw new Error(`Failed to update post status: ${response.status}`)
+    }
+    
     return await response.json()
 }

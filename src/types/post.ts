@@ -10,4 +10,6 @@ export type Post = {
   status: PostStatus
   created_at: string
   updated_at: string
+  is_pinned: boolean
+  is_disabled: boolean
 }

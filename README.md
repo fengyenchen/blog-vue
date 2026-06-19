@@ -189,6 +189,7 @@ npm run dev
 * `GET /api/admin/editor-applications/pending`：僅取得處於「待審核（`pending`）」狀態的編輯者申請。
 * `PUT /api/admin/editor-applications/:id/:status`：審核編輯者申請，變更狀態為 `approved` 或 `rejected`。
 * `POST /api/admin/users/:userId/:role`：調整指定使用者的權限角色（`user` / `editor` / `admin`）。
+* `POST /api/admin/posts/:postId/status`：調整文章狀態（`is_pinned` / `is_disabled`）。
 
 ---
 
@@ -251,6 +252,8 @@ npm run dev
 | `status` | `TEXT` | `NOT NULL` | `'draft'` (預設草稿) / `'published'` (已發布) |
 | `created_at` | `TIMESTAMPTZ` | `NOT NULL` | `now()`，文章初次建立時間 |
 | `updated_at` | `TIMESTAMPTZ` | `NOT NULL` | `now()`，文章最後修改時間 |
+| `is_pinned` | `BOOLEAN` | `NULL` | `false`，是否釘選 / 置頂文章 |
+| `is_disabled` | `BOOLEAN` | `NULL` | `false`，是否停用 / 封鎖文章 |
 
 ### 3. 編輯者申請紀錄表 (`public.editor_applications`)
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import EditorApplication from '../../components/EditorApplication.vue'
 import AdjustUserRoles from '../../components/AdjustUserRoles.vue'
+import SetPostStatus from '../../components/SetPostStatus.vue'
 
 </script>
 
@@ -28,5 +29,9 @@ import AdjustUserRoles from '../../components/AdjustUserRoles.vue'
 
     <!-- 調整使用者權限 -->
     <AdjustUserRoles />
+
+    <!-- 調整文章狀態 -->
+    <SetPostStatus />
+
   </section>
 </template>
