@@ -1,6 +1,5 @@
 import type { EditorApplication } from '../types/editorApplication.ts'
 import { ref } from 'vue'
-import type { Post } from '../types/post.ts'
 
 export const visibleUsersId = ref<string[]>([])
 
