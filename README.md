@@ -9,7 +9,7 @@
 - **快速開發**：使用 Vite 建立開發環境，支援快速啟動與熱更新。
 - **Vue 3 架構**：以 Vue 3 Single File Components (SFC) 撰寫頁面與元件。
 - **Tailwind CSS**：透過 `@tailwindcss/vite` 整合 Tailwind CSS 進行現代化切版。
-- **多角色權限控制**：嚴格劃分 `user` (一般讀者)、`editor` (文章編輯者)、`admin` (最高管理員) 三種角色權限。
+- **多角色權限控制**：嚴格劃分 `user` (一般讀者)、`editor` (文章編輯者)、`admin` (管理員) 三種角色權限。
 - **全域路由守衛**：採用全域前置守衛攔截非法請求，防止未授權訪客或權限不足之角色透過手動輸入網址強行進入後台。
 - **Markdown 編輯**：後台整合 `md-editor-v3`，提供 Markdown 編輯與雙欄即時預覽；文章正文會以 Markdown 原文儲存在資料庫。
 - **前後台頁面分離**：`src/views/frontend` 存放前台公開頁面，`src/views/admin` 存放後台管理頁面。
@@ -65,7 +65,7 @@ blog-vue/
 │   │   └── post.ts              # 文章結構相關型別
 │   ├── views/
 │   │   ├── admin/       # 後台管理頁面
-│   │   │   ├── AdminLoginView.vue   # 最高管理員登入
+│   │   │   ├── AdminLoginView.vue   # 管理員登入
 │   │   │   ├── Dashboard.vue        # 管理員主儀表板
 │   │   │   ├── EditFormView.vue     # 文章新增/編輯表單頁面
 │   │   │   ├── EditorSettingsView.vue # 編輯者個人設定頁面（如修改密碼等）
@@ -118,7 +118,7 @@ DATABASE_URL=postgresql://postgres:your_password@localhost:5432/blog_vue
 
 ### 4. 資料庫初始化與建立 Admin 帳號
 
-本專案的身分驗證全面採用 `bcrypt` 進行密碼雜湊加密。新配置開發環境時，請依循以下步驟初始化資料庫並建立最高管理員`（admin）`帳號：
+本專案的身分驗證全面採用 `bcrypt` 進行密碼雜湊加密。新配置開發環境時，請依循以下步驟初始化資料庫並建立管理員`（admin）`帳號：
 
 #### 步驟 A：執行初始化腳本
 
@@ -300,6 +300,42 @@ npm run preview
 
 ---
 
-## 相關連結
+## 系統介面預覽
 
-* **GitHub 儲存庫**：[https://github.com/fengyenchen/blog-vue](https://github.com/fengyenchen/blog-vue)
+### 1. 後台管理員與編輯者介面
+
+#### 管理員儀表板
+`admin` 角色的主要後台，用於管理全站文章、審核申請與調整使用者權限。
+![管理員儀表板](public/admin.png)
+
+#### 管理員登入
+供管理員（`admin`）進入系統後台的登入入口。
+![管理員登入](public/admin-login.png)
+
+#### 編輯者後台
+`editor` 角色的後台，可查看並管理自己所撰寫的所有文章列表。
+![編輯者後台](public/editor.png)
+
+#### 文章新增與編輯表單
+整合 `md-editor-v3` 的 Markdown 編輯器，支援雙欄即時預覽與文章儲存。
+![文章新增與編輯表單](public/editor-edit.png)
+
+#### 編輯者密碼修改
+提供編輯者在後台安全變更密碼的功能。
+![編輯者密碼修改](public/editor-change-password.png)
+
+#### 編輯者登入
+供編輯者（`editor`）進入後台的登入介面。
+![編輯者登入](public/editor-login.png)
+
+---
+
+### 2. 前台公開與申請介面
+
+#### 文章區
+編輯者或管理員(登入編輯者介面)寫的文章。
+![文章區](public/user.png)
+
+#### 申請成為編輯者頁面
+供一般讀者填寫以提升權限為 `editor` 的表單。
+![申請成為編輯者頁面](public/user-apply-for-editor.png)
