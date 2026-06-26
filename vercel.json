@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://blog-vue-api.vercel.app/api/:path*"
+      "destination": "fengyenchen-blog-vue-api.vercel.app/api/:path*"
     }
   ]
 }
