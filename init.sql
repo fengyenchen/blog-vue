@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS public.posts (
     status TEXT NOT NULL DEFAULT 'draft'::text,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    is_pinned BOOLEAN NOT NULL DEFAULT false,
+    is_disabled BOOLEAN NOT NULL DEFAULT false,
     
     -- 宣告外鍵約束，指向 users 表的 id 欄位
     CONSTRAINT fk_posts_user FOREIGN KEY (user_id) 

@@ -288,15 +288,18 @@ npm run preview
 
 ## 部署架構與反向代理設定
 
-本專案採用現代化前後端完全分離的架構進行部署，免去跨網域的煩惱：
+本專案採用現代化前後端分離的架構進行部署，並透過同網域代理免去跨網域（CORS）的煩惱：
 
-- **前端網頁 (Client)**：部署於 **Vercel** 平台。
-- **後端 API (Server)**：部署於 **Render** 平台（並連線至雲端 PostgreSQL 資料庫）。
+* **前端網頁 (Client)**：部署於 **Vercel** 平台（專案名稱：`blog-vue`）。
+* **後端 API (Server)**：同樣部署於 **Vercel** 平台（專案名稱：`blog-vue-api`），採用 Serverless Functions 架構運作。
+* **雲端資料庫 (Database)**：託管於 **Neon** 平台，提供具備自動休眠與連線池優化的 PostgreSQL 服務。
 
 ### 跨網域請求代理機制
+
 為了確保前後端溝通順暢，專案在不同環境下採用了對應的反向代理機制：
+
 1. **開發環境**：前端透過 `vite.config.ts` 的 `server.proxy` 設定，將發往 `/api` 的請求代理至本地的 `http://localhost:3000`。
-2. **生產環境**：專案根目錄配置了 `vercel.json`。當專案打包部署至 Vercel 後，網頁伺服器會依據 `rewrites` 規則，自動將前端所有 `/api/*` 的請求，在後端重寫並反向代理至實際的 API 伺服器網址 `https://blog-vue-api.onrender.com/api/*`，確保生產環境的請求同樣維持同源，兼顧安全與便利。
+2. **生產環境**：專案根目錄配置了 `vercel.json`。當前端專案部署至 Vercel 後，網頁伺服器會依據 `rewrites` 規則，自動將前端所有 `/api/*` 的請求，在後端重寫並反向代理至 Vercel 上的獨立 API 伺服器網址 `https://你的新Vercel後端網址.vercel.app/api/*`。這樣能確保生產環境的請求同樣維持同源（Same-Origin），兼顧安全與便利，且享有極佳的連線速度。
 
 ---
 

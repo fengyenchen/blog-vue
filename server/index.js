@@ -8,7 +8,6 @@ import { adminRouter } from './routes/admin.js'
 import { usersRouter } from './routes/users.js'
 
 const app = express()
-const port = Number(process.env.PORT || 3000)
 
 app.use(cors())
 app.use(express.json())
@@ -33,6 +32,13 @@ app.use((error, _request, response, _next) => {
     response.status(500).json({ message: error.message || 'Internal Server Error' })
 })
 
-app.listen(port, () => {
-    console.log(`API server listening on http://localhost:${port}`)
-})
+// 只有在本地開發環境 (非 production) 才啟動常駐監聽
+if (process.env.NODE_ENV !== 'production') {
+    const port = Number(process.env.PORT || 3000)
+    app.listen(port, () => {
+        console.log(`API server listening on http://localhost:${port}`)
+    })
+}
+
+// 匯出 app，供 Vercel 呼叫
+export default app
