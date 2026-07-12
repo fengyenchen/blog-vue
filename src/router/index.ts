@@ -85,6 +85,19 @@ const router = createRouter({
       }
     },
   ],
+  scrollBehavior(to, _from, savedPosition) { // 自訂滾動行為
+    if (to.hash) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            el: to.hash,
+            behavior: 'smooth',
+          })
+        }, 500) // 延遲時間，確保元素已經渲染完成
+      })
+    }
+    return savedPosition || { top: 0 }
+  },
 })
 
 router.beforeEach((to, _from, next) => {
