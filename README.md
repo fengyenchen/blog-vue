@@ -113,7 +113,8 @@ npm install
 
 ```bash
 PORT=3000
-DATABASE_URL=postgresql://postgres:your_password@localhost:5432/blog_vue
+# 從 Neon Console 的 Connect 複製連線字串；請勿提交實際密碼。
+DATABASE_URL=postgresql://neondb_owner:your_password@your-neon-host-pooler.aws.neon.tech/neondb?sslmode=require
 ```
 
 ### 4. 資料庫初始化與建立 Admin 帳號
@@ -161,6 +162,7 @@ npm run dev
 ### 身分驗證模組
 
 * `POST /api/auth`：使用者登入驗證。需在 body 帶入 `{ username, password }`。驗證成功回傳 `200` 與使用者資訊，失敗回傳 `401`。
+* `POST /api/auth/apply-for-editor`：送出編輯者申請。需在 body 帶入 `{ username, password, remark }`。
 * `POST /api/auth/change-password`：新增編輯者在設定區修改密碼功能。需在 body 帶入 `{ username, password, newPassword }`。僅限 `admin` 或 `editor` 權限者操作，變更成功回傳 `200` 與最新使用者資訊，失敗回傳 `401`。
 
 
@@ -180,11 +182,10 @@ npm run dev
 * `GET /api/editor/edit/:id`：取得單一文章詳細內容。
 * `POST /api/editor/edit`：儲存新增的文章。需在 body 帶入 `{ user_id, title, content, status, cover_image, excerpt }`，限文章作者本人新增。
 * `PUT /api/editor/edit/:id`：儲存更新的文章。需在 body 帶入 `{ user_id, title, content, status, cover_image, excerpt }`，並在 URL Query 帶入 `?role={role}`，限文章作者本人或系統管理員修改，並自動更新 `updated_at。
-* `DELETE /api/editor/edit/:id`：刪除指定文章。需在 URL Query 帶入 `?userId={userId}` 作為操作者驗證，限文章作者本人或系統管理員刪除。
+* `DELETE /api/editor/edit/:id`：刪除指定文章。需在 URL Query 帶入 `?userId={userId}&role={role}` 作為操作者驗證，限文章作者本人或系統管理員刪除。
 
 ### 後台管理員權限模組
 
-* `GET /api/admin`：取得後台全文章列表（包含草稿與已發布，依時間降冪排序）。
 * `GET /api/admin/editor-applications`：取得所有編輯者資格申請紀錄。
 * `GET /api/admin/editor-applications/pending`：僅取得處於「待審核（`pending`）」狀態的編輯者申請。
 * `PUT /api/admin/editor-applications/:id/:status`：審核編輯者申請，變更狀態為 `approved` 或 `rejected`。
@@ -299,7 +300,8 @@ npm run preview
 為了確保前後端溝通順暢，專案在不同環境下採用了對應的反向代理機制：
 
 1. **開發環境**：前端透過 `vite.config.ts` 的 `server.proxy` 設定，將發往 `/api` 的請求代理至本地的 `http://localhost:3000`。
-2. **生產環境**：專案根目錄配置了 `vercel.json`。當前端專案部署至 Vercel 後，網頁伺服器會依據 `rewrites` 規則，自動將前端所有 `/api/*` 的請求，在後端重寫並反向代理至 Vercel 上的獨立 API 伺服器網址 `https://你的新Vercel後端網址.vercel.app/api/*`。這樣能確保生產環境的請求同樣維持同源（Same-Origin），兼顧安全與便利，且享有極佳的連線速度。
+2. **生產環境**：專案根目錄配置了 `vercel.json`。當前端專案部署至 Vercel 後，網頁伺服器會依據 `rewrites` 規則，自動將前端所有 `/api/*` 的請求反向代理至獨立 API 伺服器 `https://fengyenchen-blog-vue-api.vercel.app/api/*`，讓請求維持同源（Same-Origin）。
+3. **SPA 路由 fallback**：其餘前端路徑會重寫到 `/index.html`，再交由 Vue Router 處理。因此重新整理 `/post/:id`、`/editor` 等頁面，或點擊文章內的站內連結時，不會由 Vercel 回傳 404。
 
 ---
 

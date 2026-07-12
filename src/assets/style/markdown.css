@@ -45,7 +45,14 @@
   color: #222;
 }
 
-/* 3. 列表 (強效修復) */
+.markdown-body a {
+  color: #28428a;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* 3. 列表 */
 .markdown-body ul {
   list-style-type: disc !important;
   padding-left: 2em !important;
