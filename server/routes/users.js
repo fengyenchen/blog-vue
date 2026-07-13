@@ -1,9 +1,10 @@
 import { Router } from 'express'
 import { pool } from '../db/pool.js'
+import { authenticate, requireRole } from '../middleware/auth.js'
 
 export const usersRouter = Router()
 
-usersRouter.get('/', async (request, response, next) => {
+usersRouter.get('/', authenticate, requireRole('admin'), async (request, response, next) => {
     try {
         const { rows } = await pool.query(
             `SELECT DISTINCT ON (username) id, username, role, created_at, updated_at

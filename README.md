@@ -13,7 +13,7 @@
 - **全域路由守衛**：採用全域前置守衛攔截非法請求，防止未授權訪客或權限不足之角色透過手動輸入網址強行進入後台。
 - **Markdown 編輯**：後台整合 `md-editor-v3`，提供 Markdown 編輯與雙欄即時預覽；文章正文會以 Markdown 原文儲存在資料庫。
 - **前後台頁面分離**：`src/views/frontend` 存放前台公開頁面，`src/views/admin` 存放後台管理頁面。
-- **Node.js API**：`server/` 提供 Express + PostgreSQL 後端，前端透過 `/api` 取得文章與驗證資料。
+- **Node.js API**：`server/` 提供 Express + PostgreSQL 後端，前端透過 `VITE_API_BASE_URL` 取得文章與驗證資料。
 
 ---
 
@@ -25,16 +25,23 @@ blog-vue/
 ├── node_modules/        # 專案依賴套件套件庫
 ├── public/              # 公開靜態資源
 ├── server/
+│   ├── config/
+│   │   └── env.js       # 載入 server/.env 的後端環境設定
 │   ├── db/
 │   │   └── pool.js      # PostgreSQL 連線池
+│   ├── middleware/
+│   │   └── auth.js      # JWT 驗證與角色權限 middleware
 │   ├── routes/
 │   │   ├── admin.js     # 管理員 API 路由
 │   │   ├── auth.js      # 身分驗證 API 路由
 │   │   ├── editor.js    # 編輯者 API 路由
 │   │   ├── posts.js     # 文章 API 路由
 │   │   └── users.js     # 使用者管理 API 路由
-│   ├── types/           # 後端型別定義資料夾
-│   └── index.js         # Express 後端主入口
+│   ├── .env             # 後端環境變數
+│   ├── .env.example     # 後端環境變數範例
+│   ├── index.js         # Express 後端主入口
+│   ├── package.json     # 後端獨立部署的套件設定
+│   └── vercel.json      # 後端 Vercel Serverless 設定
 ├── src/
 │   ├── assets/          # 前端靜態資源
 │   │   └── style/
@@ -55,6 +62,7 @@ blog-vue/
 │   │   └── index.ts     # Vue Router 路由配置與全域路由守衛
 │   ├── services/        # 負責與後端 API 對接的非同步請求服務
 │   │   ├── admin.ts     # 管理員服務
+│   │   ├── api.ts       # API 基底網址與共用 fetch 封裝
 │   │   ├── auth.ts      # 登入驗證服務
 │   │   ├── editor.ts    # 編輯者服務
 │   │   ├── posts.ts     # 文章資料服務
@@ -78,8 +86,8 @@ blog-vue/
 │   ├── App.vue          # 應用程式根元件
 │   ├── main.ts          # Vue 專案啟動入口檔 (TypeScript)
 │   └── style.css        # 全域樣式與 Tailwind 核心配置
-├── .env                 # 本地環境變數設定檔 (已加入 .gitignore)
-├── .env.example         # 環境變數設定範例模板
+├── .env                 # 前端環境變數
+├── .env.example         # 前端環境變數範例模板
 ├── .gitignore           # Git 忽略檔案清單
 ├── index.html           # 前端單頁網頁 (SPA) 模板入口
 ├── init.sql             # PostgreSQL 資料庫初始化建表腳本
@@ -89,8 +97,8 @@ blog-vue/
 ├── tsconfig.app.json    # 前端應用程式 TS 設定
 ├── tsconfig.json        # TypeScript 主設定檔
 ├── tsconfig.node.json   # Vite 環境節點 TS 設定
-├── vercel.json          # Vercel 生產環境路由與代理配置文件
-└── vite.config.ts       # Vite 核心建置與軟體外掛設定
+├── vercel.json          # 前端 Vercel 設定
+└── vite.config.ts       # Vite 核心建置與外掛設定
 ```
 
 ---
@@ -109,13 +117,11 @@ npm install
 
 ### 3. 設定環境變數
 
-在專案根目錄建立 `.env` 檔案並設定環境變數：
+前端與後端分開部署，因此各自使用環境變數檔案。
 
-```bash
-PORT=3000
-# 從 Neon Console 的 Connect 複製連線字串；請勿提交實際密碼。
-DATABASE_URL=postgresql://neondb_owner:your_password@your-neon-host-pooler.aws.neon.tech/neondb?sslmode=require
-```
+可分別參考 `.env.example` 與 `server/.env.example` 建立檔案。
+
+前端在專案根目錄建立 `.env`，後端在 `server/` 目錄建立 `.env` 
 
 ### 4. 資料庫初始化與建立 Admin 帳號
 
@@ -161,9 +167,9 @@ npm run dev
 
 ### 身分驗證模組
 
-* `POST /api/auth`：使用者登入驗證。需在 body 帶入 `{ username, password }`。驗證成功回傳 `200` 與使用者資訊，失敗回傳 `401`。
+* `POST /api/auth`：使用者登入驗證。需在 body 帶入 `{ username, password }`。驗證成功回傳 JWT 與使用者資訊，失敗回傳 `401`。
 * `POST /api/auth/apply-for-editor`：送出編輯者申請。需在 body 帶入 `{ username, password, remark }`。
-* `POST /api/auth/change-password`：新增編輯者在設定區修改密碼功能。需在 body 帶入 `{ username, password, newPassword }`。僅限 `admin` 或 `editor` 權限者操作，變更成功回傳 `200` 與最新使用者資訊，失敗回傳 `401`。
+* `POST /api/auth/change-password`：修改目前登入者的密碼。需在 body 帶入 `{ password, newPassword }`，並附帶 JWT。僅限 `admin` 或 `editor`。
 
 
 ### 文章模組
@@ -173,24 +179,25 @@ npm run dev
 
 ### 使用者管理模組
 
-* `GET /api/users`：取得系統所有使用者列表（包含 ID、名稱與角色）。有過濾重複申請之舊帳號，僅保留最新建立之紀錄。
-* `GET /api/users/:id`：透過 ID 取得指定使用者的名稱與基本資料。
+* `GET /api/users`：取得系統所有使用者列表（包含 ID、名稱與角色），僅限管理員 JWT。
+* `GET /api/users/:id`：透過 ID 取得指定使用者的公開基本資料，供文章顯示作者名稱。
 
 ### 後台編輯者管理模組
 
-* `GET /api/editor/user/:userId`：取得後台該使用者的文章列表（包含草稿與已發布，依時間降冪排序）。
-* `GET /api/editor/edit/:id`：取得單一文章詳細內容。
-* `POST /api/editor/edit`：儲存新增的文章。需在 body 帶入 `{ user_id, title, content, status, cover_image, excerpt }`，限文章作者本人新增。
-* `PUT /api/editor/edit/:id`：儲存更新的文章。需在 body 帶入 `{ user_id, title, content, status, cover_image, excerpt }`，並在 URL Query 帶入 `?role={role}`，限文章作者本人或系統管理員修改，並自動更新 `updated_at。
-* `DELETE /api/editor/edit/:id`：刪除指定文章。需在 URL Query 帶入 `?userId={userId}&role={role}` 作為操作者驗證，限文章作者本人或系統管理員刪除。
+* `GET /api/editor/posts`：取得目前登入編輯者的文章列表（包含草稿與已發布），需附帶 editor 或 admin JWT。
+* `GET /api/editor/edit/:id`：取得單一文章詳細內容，僅限文章作者或管理員。
+* `POST /api/editor/edit`：儲存新增文章。需在 body 帶入 `{ title, content, status, cover_image, excerpt }`；文章作者由 JWT 決定。
+* `PUT /api/editor/edit/:id`：儲存更新文章。需在 body 帶入 `{ title, content, status, cover_image, excerpt }`；僅限文章作者或管理員。
+* `DELETE /api/editor/edit/:id`：刪除指定文章，僅限文章作者或管理員。
 
 ### 後台管理員權限模組
 
+* 所有 `/api/admin/*` 路由皆須附帶 admin JWT。
 * `GET /api/admin/editor-applications`：取得所有編輯者資格申請紀錄。
 * `GET /api/admin/editor-applications/pending`：僅取得處於「待審核（`pending`）」狀態的編輯者申請。
 * `PUT /api/admin/editor-applications/:id/:status`：審核編輯者申請，變更狀態為 `approved` 或 `rejected`。
 * `POST /api/admin/users/:userId/:role`：調整指定使用者的權限角色（`user` / `editor` / `admin`）。
-* `POST /api/admin/posts/:postId/status`：調整文章狀態（`is_pinned` / `is_disabled`）。
+* `PUT /api/admin/posts/:postId/status`：調整文章狀態（`is_pinned` / `is_disabled`）。
 
 ---
 
@@ -198,7 +205,7 @@ npm run dev
 
 本專案實作了嚴格的前後台角色分離防禦機制，核心邏輯如下：
 
-1. **憑證管理**：使用者登入成功後，前端會將身分識別（`user_id`）與權限類別（`role`）寫入本地 `localStorage`（對應為 `token` 與 `role`）。
+1. **憑證管理**：使用者登入成功後，前端只會將有效期為 24 小時的 JWT 寫入 `localStorage` 的 `token`。每個受保護 API 請求會在 `Authorization` header 帶入 `Bearer <token>`；後端驗證 token 的使用者 ID 與角色，絕不信任前端傳送的角色或使用者 ID。
 2. **全域前置守衛 (`router.beforeEach`)**：
 * **無權限攔截**：一般未登入的訪客 (或一般讀者) 嘗試透過網址直接訪問後台管理（`/admin` 或 `/editor`）時，守衛會自動識別目標路徑，精確重導向至對應的登入頁面（`LoginView` 或 `AdminLoginView`）。
 * **越權攔截**：已登入的角色若企圖跨越權限界線（例如 `editor` 試圖進入 `/admin/dashboard`），守衛將彈出「權限不足」提示，並自動將其彈回所屬的合法操作區域。
@@ -287,21 +294,46 @@ npm run preview
 
 ---
 
-## 部署架構與反向代理設定
+## 部署架構與環境變數設定
 
-本專案採用現代化前後端分離的架構進行部署，並透過同網域代理免去跨網域（CORS）的煩惱：
+本專案以前後端分離方式部署；前端會直接呼叫後端 API，後端使用 CORS 僅允許指定的前端網域。
 
 * **前端網頁 (Client)**：部署於 **Vercel** 平台（專案名稱：`blog-vue`）。
 * **後端 API (Server)**：同樣部署於 **Vercel** 平台（專案名稱：`blog-vue-api`），採用 Serverless Functions 架構運作。
 * **雲端資料庫 (Database)**：託管於 **Neon** 平台，提供具備自動休眠與連線池優化的 PostgreSQL 服務。
 
-### 跨網域請求代理機制
+### Vercel 部署設定
 
-為了確保前後端溝通順暢，專案在不同環境下採用了對應的反向代理機制：
+#### 前端 Vercel 專案
 
-1. **開發環境**：前端透過 `vite.config.ts` 的 `server.proxy` 設定，將發往 `/api` 的請求代理至本地的 `http://localhost:3000`。
-2. **生產環境**：專案根目錄配置了 `vercel.json`。當前端專案部署至 Vercel 後，網頁伺服器會依據 `rewrites` 規則，自動將前端所有 `/api/*` 的請求反向代理至獨立 API 伺服器 `https://fengyenchen-blog-vue-api.vercel.app/api/*`，讓請求維持同源（Same-Origin）。
-3. **SPA 路由 fallback**：其餘前端路徑會重寫到 `/index.html`，再交由 Vue Router 處理。因此重新整理 `/post/:id`、`/editor` 等頁面，或點擊文章內的站內連結時，不會由 Vercel 回傳 404。
+設定以下 Environment Variable：
+
+```env
+VITE_API_BASE_URL=https://你的後端網址.vercel.app/api
+```
+
+#### 後端 Vercel 專案
+
+將 Vercel 專案的 Root Directory 設為 `server`，此資料夾內的 `vercel.json` 會把請求交給 `index.js` 的 Express API。設定以下 Environment Variables：
+
+```env
+DATABASE_URL=你的 Neon PostgreSQL 連線字串
+JWT_SECRET=與本機 server/.env 相同的長隨機密鑰
+FRONTEND_ORIGIN=https://你的前端網址.vercel.app
+```
+
+#### 本機開發
+
+```env
+# .env（前端）
+VITE_API_BASE_URL=http://localhost:3000/api
+
+# server/.env（後端）
+PORT=3000
+FRONTEND_ORIGIN=http://localhost:5173
+DATABASE_URL=你的 Neon PostgreSQL 連線字串
+JWT_SECRET=長隨機密鑰
+```
 
 ---
 

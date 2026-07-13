@@ -77,15 +77,12 @@ const saveArticle = async () => {
     const finalCoverImage = cover_image?.trim() ? cover_image.trim() : null
     const finalExcerpt = excerpt?.trim() ? excerpt.trim() : null
 
-    if (!postId.value) {
+    if (!postId.value || postId.value === 'new') {
         // 新增文章
-        const userId = localStorage.getItem('token') || ''
-        await createArticle(userId, title, content, status, finalCoverImage, finalExcerpt)
+        await createArticle(title, content, status, finalCoverImage, finalExcerpt)
     } else {
         // 更新文章
-        const userId = localStorage.getItem('token') || ''
-        const role = localStorage.getItem('role') || ''
-        await updateArticle(userId, role, postId.value, title, content, status, finalCoverImage, finalExcerpt)
+        await updateArticle(postId.value, title, content, status, finalCoverImage, finalExcerpt)
     }
     
     alert('完成')

@@ -1,10 +1,11 @@
 import type { EditorApplication } from '../types/editorApplication.ts'
 import { ref } from 'vue'
+import { apiFetch } from './api'
 
 export const visibleUsersId = ref<string[]>([])
 
 export const getEditorApplications = async () => {
-    const response = await fetch('/api/admin/editor-applications/pending')
+    const response = await apiFetch('/admin/editor-applications/pending')
 
     if (!response.ok) {
         throw new Error(`Failed to load editor applications: ${response.status}`)
@@ -14,7 +15,7 @@ export const getEditorApplications = async () => {
 }
 
 export const editorUpdateApplicationStatus = async (id: string, status: 'approved' | 'rejected') => {
-    const response = await fetch(`/api/admin/editor-applications/${id}/${status}`, {
+    const response = await apiFetch(`/admin/editor-applications/${id}/${status}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
@@ -30,7 +31,7 @@ export const editorUpdateApplicationStatus = async (id: string, status: 'approve
 }
 
 export const changeUserRole = async (userId: string, role: string) => {
-    const response = await fetch(`/api/admin/users/${userId}/${role}`, {
+    const response = await apiFetch(`/admin/users/${userId}/${role}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -46,7 +47,7 @@ export const changeUserRole = async (userId: string, role: string) => {
 }
 
 export const updatePostStatus = async (postId: string, status: { is_pinned?: boolean; is_disabled?: boolean }) => {
-    const response = await fetch(`/api/admin/posts/${postId}/status`, {
+    const response = await apiFetch(`/admin/posts/${postId}/status`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'

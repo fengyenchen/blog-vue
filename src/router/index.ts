@@ -8,6 +8,7 @@ import Dashboard from '../views/admin/Dashboard.vue'
 import EditFormView from '../views/admin/EditFormView.vue'
 import applyForEditorView from '../views/frontend/ApplyForEditorView.vue'
 import EditorSettingsView from '../views/admin/EditorSettingsView.vue'
+import { getAuthRole, logout } from '../services/auth'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -102,8 +103,8 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  const isAuthenticated = !!localStorage.getItem('token') // 以 token 是否存在來判斷是否已登入，目前使用 user_id 作為憑證
-  const userRole = localStorage.getItem('role') // 'admin' 或 'editor'
+  const userRole = getAuthRole()
+  const isAuthenticated = !!userRole
 
   // 情況 A：要去需要驗證的頁面（/editor 或 /admin 系列）
   if (requiresAuth) {
@@ -142,8 +143,7 @@ router.beforeEach((to, _from, next) => {
   // 情況 B：已經登入（admin 或 editor），卻又主動跑去任何一個不需要驗證的頁面
   else if ((to.name === 'login' || to.name === 'adminLogin' || to.name === 'applyForEditor' || to.name === 'home') && isAuthenticated) {
     // 強制登出，清空身分，變回一般 user
-    localStorage.removeItem('token')
-    localStorage.removeItem('role')
+    logout()
     next() 
   }
   

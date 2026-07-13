@@ -1,10 +1,11 @@
 import type { Post } from '../types/post'
 import { ref } from 'vue'
+import { publicFetch } from './api'
 
 export const visiblePostIds = ref<string[]>([])
 
 export const fetchPosts = async () => {
-    const response = await fetch('/api/posts')
+    const response = await publicFetch('/posts')
 
     if (!response.ok) {
         throw new Error(`Failed to load posts: ${response.status}`)
@@ -14,7 +15,7 @@ export const fetchPosts = async () => {
 }
 
 export const getPostById = async (id: string) => {
-    const response = await fetch(`/api/posts/post/${id}`)
+    const response = await publicFetch(`/posts/post/${id}`)
 
     if (response.status === 404) {
         return null

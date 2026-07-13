@@ -1,7 +1,9 @@
 import { Router } from 'express'
 import { pool } from '../db/pool.js'
+import { authenticate, requireRole } from '../middleware/auth.js'
 
 export const adminRouter = Router()
+adminRouter.use(authenticate, requireRole('admin'))
 
 adminRouter.get('/editor-applications', async (_request, response, next) => {
     try {

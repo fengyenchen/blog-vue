@@ -20,13 +20,7 @@ const pinnedPosts = computed(() => allPosts.value.filter((post) => post.is_pinne
 
 const load = async () => {
   if (props.isEditor) {
-    const userId = localStorage.getItem('token') || ''
-    if (!userId) {
-      alert('未偵測到登入狀態，請重新登入。')
-      return
-    }
-
-    allPosts.value = await editorFetchPosts(userId)
+    allPosts.value = await editorFetchPosts()
     return
   }
   allPosts.value = await fetchPosts()

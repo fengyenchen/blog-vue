@@ -22,9 +22,7 @@ const handleEdit = (post: Post) => {
 const confirmDelete = async (post: Post) => {
   if (confirm(`確定要刪除文章「${post.title}」嗎？此操作無法復原。`)) {
     try {
-      const userId = localStorage.getItem('token') || ''
-      const role = localStorage.getItem('role') || ''
-      await deleteArticle(post.id, userId, role)
+      await deleteArticle(post.id)
       
       // 刪除成功後，讓 key 增加，迫使 Posts 元件重新讀取資料庫
       refreshKey.value++ 

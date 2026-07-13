@@ -1,7 +1,8 @@
 import type { User } from '../types/auth'
+import { apiFetch } from './api'
 
 export const getAllUsers = async () => {
-    const response = await fetch(`/api/users`)
+    const response = await apiFetch('/users')
 
     if (response.status === 404) {
         return null
@@ -27,7 +28,7 @@ export const getUsersByUsername = async (username: string) => {
 
 
 export const getUsernameByUserId = async (id: string) => {
-    const response = await fetch(`/api/users/${id}`)
+    const response = await apiFetch(`/users/${id}`)
 
     if (response.status === 404) {
         return null

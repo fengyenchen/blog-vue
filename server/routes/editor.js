@@ -1,18 +1,18 @@
 import { Router } from 'express'
 import { pool } from '../db/pool.js'
+import { authenticate, requireRole } from '../middleware/auth.js'
 
 export const editorRouter = Router()
+editorRouter.use(authenticate, requireRole('editor', 'admin'))
 
-editorRouter.get('/user/:userId', async (request, response, next) => {
+editorRouter.get('/posts', async (request, response, next) => {
     try {
-        const { userId } = request.params
-
         const { rows } = await pool.query(
             `SELECT id, user_id, title, content, excerpt, cover_image, status, created_at, updated_at
        FROM public.posts
        WHERE user_id = $1
        ORDER BY created_at DESC, id DESC`,
-            [userId]
+            [request.auth.userId]
         )
 
         response.json(rows)
@@ -35,7 +35,12 @@ editorRouter.get('/edit/:id', async (request, response, next) => {
             return response.status(404).json({ error: '找不到該文章' })
         }
 
-        response.json(rows[0])
+        const post = rows[0]
+        if (request.auth.role !== 'admin' && post.user_id !== request.auth.userId) {
+            return response.status(403).json({ error: '無權讀取此文章' })
+        }
+
+        response.json(post)
     } catch (error) {
         next(error)
     }
@@ -45,15 +50,10 @@ editorRouter.get('/edit/:id', async (request, response, next) => {
 editorRouter.put('/edit/:id', async (request, response, next) => {
     try {
         const { id } = request.params
-        const { user_id, title, content, status, cover_image, excerpt } = request.body
-        const { role } = request.query
-
-        if (!user_id) {
-            return response.status(400).json({ error: '缺少操作者 ID，無法更新文章' })
-        }
+        const { title, content, status, cover_image, excerpt } = request.body
 
         let result;
-        if (role === 'admin') {
+        if (request.auth.role === 'admin') {
             result = await pool.query(
                 `UPDATE public.posts 
                  SET title = $1, content = $2, status = $3, cover_image = $4, excerpt = $5, updated_at = NOW()
@@ -67,7 +67,7 @@ editorRouter.put('/edit/:id', async (request, response, next) => {
                  SET title = $1, content = $2, status = $3, cover_image = $4, excerpt = $5, updated_at = NOW()
                  WHERE id = $6 AND user_id = $7
                  RETURNING *`,
-                [title, content, status, cover_image, excerpt, id, user_id]
+                [title, content, status, cover_image, excerpt, id, request.auth.userId]
             )
         }
 
@@ -86,17 +86,13 @@ editorRouter.put('/edit/:id', async (request, response, next) => {
 // 儲存新增的文章
 editorRouter.post('/edit', async (request, response, next) => {
     try {
-        const { user_id, title, content, status, cover_image, excerpt } = request.body
-
-        if (!user_id) {
-            return response.status(400).json({ error: '缺少使用者 ID，無法發布文章' })
-        }
+        const { title, content, status, cover_image, excerpt } = request.body
 
         const { rows } = await pool.query(
             `INSERT INTO public.posts (user_id, title, content, status, cover_image, excerpt)
              VALUES ($1, $2, $3, $4, $5, $6)
              RETURNING *`,
-            [user_id, title, content, status, cover_image, excerpt]
+            [request.auth.userId, title, content, status, cover_image, excerpt]
         )
 
         response.status(201).json(rows[0])
@@ -109,14 +105,9 @@ editorRouter.post('/edit', async (request, response, next) => {
 editorRouter.delete('/edit/:id', async (request, response, next) => {
     try {
         const { id } = request.params
-        const { userId, role } = request.query
-
-        if (!userId) {
-            return response.status(400).json({ error: '缺少使用者 ID，無法刪除文章' })
-        }
 
         let result
-        if (role === 'admin') {
+        if (request.auth.role === 'admin') {
             result = await pool.query(
                 `DELETE FROM public.posts 
                 WHERE id = $1 
@@ -128,7 +119,7 @@ editorRouter.delete('/edit/:id', async (request, response, next) => {
                 `DELETE FROM public.posts 
                 WHERE id = $1 AND user_id = $2 
                 RETURNING id`,
-                [id, userId]
+                [id, request.auth.userId]
             )
         }
         const { rows } = result

@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import './config/env.js'
 import express from 'express'
 import cors from 'cors'
 import { postsRouter } from './routes/posts.js'
@@ -9,7 +9,7 @@ import { usersRouter } from './routes/users.js'
 
 const app = express()
 
-app.use(cors())
+app.use(cors({ origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173' }))
 app.use(express.json())
 
 app.get('/api/health', (_request, response) => {

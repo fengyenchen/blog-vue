@@ -8,6 +8,7 @@ export interface User {
 
 export interface LoginSuccessResponse {
     success: true
+    token: string
     user: User
 }
 
